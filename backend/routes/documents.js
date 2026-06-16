@@ -174,19 +174,29 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
     // 2. Use Gemini Vision API directly for accurate OCR extraction (core docs only: aadhaar, pan, income, caste, etc.)
     let extractedData = {};
     let validationReport = { status: 'unverified', issues: [] };
-    const logPath = path.resolve(__dirname, '../../ocr_debug.log');
+    const logPath = isVercel ? path.join(os.tmpdir(), 'ocr_debug.log') : path.resolve(__dirname, '../../ocr_debug.log');
+
+    function safeLog(msg) { try { fs.appendFileSync(logPath, msg); } catch(e) {} }
 
     try {
-      fs.appendFileSync(logPath, `\n--- Gemini Vision OCR for ${req.file.originalname} (type: ${document_type}) ---\n`);
+      safeLog(`\n--- Gemini Vision OCR for ${req.file.originalname} (type: ${document_type}) ---\n`);
       extractedData = await runGeminiVisionOCR(filePath, document_type, req.file.mimetype, logPath);
       if (extractedData && extractedData.name) {
         validationReport.status = 'verified';
       }
-      fs.appendFileSync(logPath, `Gemini result: ${JSON.stringify(extractedData)}\n`);
+      safeLog(`Gemini result: ${JSON.stringify(extractedData)}\n`);
     } catch (gemErr) {
-      fs.appendFileSync(logPath, `Gemini Vision error: ${gemErr.message}\n`);
-      console.warn('[OCR] Gemini Vision failed, using Tesseract fallback:', gemErr.message);
-      extractedData = await runLocalFallbackOCR(filePath, document_type, profileName, profileDob);
+      safeLog(`Gemini Vision error: ${gemErr.message}\n`);
+      console.warn('[OCR] Gemini Vision failed:', gemErr.message);
+      // Try local fallback only if not on Vercel (Tesseract not available on serverless)
+      if (!isVercel) {
+        try {
+          extractedData = await runLocalFallbackOCR(filePath, document_type, profileName, profileDob);
+        } catch(fallbackErr) {
+          console.warn('[OCR] Fallback OCR also failed:', fallbackErr.message);
+        }
+      }
+      // If all OCR fails, still save the document as unverified (don't crash the upload)
     }
 
     // 2.5. Document type verification — reject wrong documents
@@ -443,8 +453,8 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to upload document' });
+    console.error('[Upload Error]', err.message, err.stack);
+    res.status(500).json({ error: 'Failed to upload document: ' + err.message });
   }
 });
 
@@ -722,7 +732,7 @@ Return ONLY the JSON object, no markdown, no explanation.`;
 
         const errText = await response.text().catch(() => '');
         lastError = `${model} returned ${response.status}`;
-        if (logPath) fs.appendFileSync(logPath, `${model} error ${response.status}: ${errText.substring(0, 200)}\n`);
+        if (logPath) try { fs.appendFileSync(logPath, `${model} error ${response.status}: ${errText.substring(0, 200)}\n`); } catch(e) {}
         
         // If rate limited, wait longer and retry
         if (response.status === 429 && attempt === 0) {
@@ -748,7 +758,7 @@ Return ONLY the JSON object, no markdown, no explanation.`;
 
   const result = await response.json();
   const textContent = result?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  if (logPath) fs.appendFileSync(logPath, `Gemini raw response: ${textContent.substring(0, 500)}\n`);
+  if (logPath) try { fs.appendFileSync(logPath, `Gemini raw response: ${textContent.substring(0, 500)}\n`); } catch(e) {}
 
   // Parse JSON from response (strip markdown code fences if present)
   let jsonStr = textContent.trim();
@@ -781,7 +791,7 @@ Return ONLY the JSON object, no markdown, no explanation.`;
       console.log('[Gemini OCR] Recovered truncated JSON. Extracted:', parsed.name, parsed.id_number);
       return parsed;
     } catch (e2) {
-      if (logPath) fs.appendFileSync(logPath, `Gemini JSON parse error: ${parseErr.message}\nRaw: ${jsonStr.substring(0, 500)}\n`);
+      if (logPath) try { fs.appendFileSync(logPath, `Gemini JSON parse error: ${parseErr.message}\nRaw: ${jsonStr.substring(0, 500)}\n`); } catch(e) {}
       throw new Error('Failed to parse Gemini response as JSON');
     }
   }
