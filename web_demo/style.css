@@ -1,5 +1,14 @@
 /* style.css - Premium GovTech Styling for OneCitizen AI Web Demo */
 
+/* Hide browser-default password reveal icons (ensures consistent custom eye toggle) */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-textfield-decoration-container {
+  display: none !important;
+  -webkit-appearance: none;
+}
+
 :root {
   --primary-navy: #0B4F30; /* Rich Forest Green */
   --secondary-blue: #0D6E45; /* Emerald Green */

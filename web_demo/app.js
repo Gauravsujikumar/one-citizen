@@ -1196,6 +1196,24 @@ function setupGoogleLogin() {
   });
 }
 
+// Password visibility toggle — custom SVG eye icon (consistent across desktop & mobile)
+function setupPasswordToggles() {
+  document.querySelectorAll('.pw-eye-toggle').forEach(toggle => {
+    toggle.addEventListener('click', function() {
+      const targetId = this.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      if (!input) return;
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      // Swap icon: eye-open ↔ eye-off
+      this.innerHTML = isPassword
+        ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+        : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+      this.style.color = isPassword ? '#4285F4' : '#94A3B8';
+    });
+  });
+}
+
 // Step 2a: New user - create account with password
 function showGoogleSignupSheet(email) {
   const html = `
@@ -1206,11 +1224,21 @@ function showGoogleSignupSheet(email) {
       </div>
       <div class="form-group" style="margin-bottom: 10px;">
         <label style="font-size: 10px; font-weight: 700; color: #0F294A; text-transform: uppercase;">Create Password</label>
-        <input type="password" id="google-password-input" placeholder="Min 4 characters" style="width: 100%; height: 40px; border-radius: 8px; border: 1.5px solid #D1D5DB; padding: 0 12px; font-size: 13px; margin-top: 5px; box-sizing: border-box;" />
+        <div style="position: relative; margin-top: 5px;">
+          <input type="password" id="google-password-input" placeholder="Min 4 characters" style="width: 100%; height: 40px; border-radius: 8px; border: 1.5px solid #D1D5DB; padding: 0 40px 0 12px; font-size: 13px; box-sizing: border-box;" />
+          <span class="pw-eye-toggle" data-target="google-password-input" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94A3B8; display: flex; align-items: center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </span>
+        </div>
       </div>
       <div class="form-group" style="margin-bottom: 14px;">
         <label style="font-size: 10px; font-weight: 700; color: #0F294A; text-transform: uppercase;">Confirm Password</label>
-        <input type="password" id="google-password-confirm" placeholder="Re-enter password" style="width: 100%; height: 40px; border-radius: 8px; border: 1.5px solid #D1D5DB; padding: 0 12px; font-size: 13px; margin-top: 5px; box-sizing: border-box;" />
+        <div style="position: relative; margin-top: 5px;">
+          <input type="password" id="google-password-confirm" placeholder="Re-enter password" style="width: 100%; height: 40px; border-radius: 8px; border: 1.5px solid #D1D5DB; padding: 0 40px 0 12px; font-size: 13px; box-sizing: border-box;" />
+          <span class="pw-eye-toggle" data-target="google-password-confirm" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94A3B8; display: flex; align-items: center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </span>
+        </div>
       </div>
       <button id="btn-google-create-account" style="width: 100%; padding: 13px; border: none; border-radius: 10px; background: linear-gradient(135deg, #046A38, #0D8B4E); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;">
         Create Account & Login
@@ -1219,7 +1247,10 @@ function showGoogleSignupSheet(email) {
     </div>
   `;
   openBottomSheet('Create Account', html);
-  setTimeout(() => { const inp = document.getElementById('google-password-input'); if (inp) inp.focus(); }, 200);
+  setTimeout(() => {
+    setupPasswordToggles();
+    const inp = document.getElementById('google-password-input'); if (inp) inp.focus();
+  }, 200);
 
   document.getElementById('btn-google-back-to-email')?.addEventListener('click', () => { closeBottomSheet(); document.getElementById('btn-google-login')?.click(); });
 
@@ -1264,7 +1295,12 @@ function showGoogleLoginSheet(email) {
       </div>
       <div class="form-group" style="margin-bottom: 14px;">
         <label style="font-size: 10px; font-weight: 700; color: #0F294A; text-transform: uppercase;">Enter Password</label>
-        <input type="password" id="google-password-input" placeholder="Enter your password" style="width: 100%; height: 40px; border-radius: 8px; border: 1.5px solid #D1D5DB; padding: 0 12px; font-size: 13px; margin-top: 5px; box-sizing: border-box;" />
+        <div style="position: relative; margin-top: 5px;">
+          <input type="password" id="google-password-input" placeholder="Enter your password" style="width: 100%; height: 40px; border-radius: 8px; border: 1.5px solid #D1D5DB; padding: 0 40px 0 12px; font-size: 13px; box-sizing: border-box;" />
+          <span class="pw-eye-toggle" data-target="google-password-input" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94A3B8; display: flex; align-items: center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </span>
+        </div>
       </div>
       <button id="btn-google-verify-password" style="width: 100%; padding: 13px; border: none; border-radius: 10px; background: linear-gradient(135deg, #4285F4, #1a73e8); color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;">
         Login
@@ -1273,7 +1309,10 @@ function showGoogleLoginSheet(email) {
     </div>
   `;
   openBottomSheet('Login', html);
-  setTimeout(() => { const inp = document.getElementById('google-password-input'); if (inp) inp.focus(); }, 200);
+  setTimeout(() => {
+    setupPasswordToggles();
+    const inp = document.getElementById('google-password-input'); if (inp) inp.focus();
+  }, 200);
 
   document.getElementById('btn-google-back-to-email')?.addEventListener('click', () => { closeBottomSheet(); document.getElementById('btn-google-login')?.click(); });
 
