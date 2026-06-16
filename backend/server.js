@@ -6,7 +6,8 @@ const fs = require('fs');
 const dotenv = require('dotenv');
 const db = require('./db');
 
-dotenv.config();
+// Load .env from the backend directory (works both locally and on Vercel)
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 // Prevent unhandled errors from crashing the server (e.g. Tesseract worker errors)
 process.on('uncaughtException', (err) => {
@@ -41,11 +42,11 @@ app.use(express.static(webDemoDir));
 const officerDir = path.join(__dirname, '../officer_portal');
 app.use('/officer', express.static(officerDir));
 
-// Initialize Database connection
-db.initDb().then(() => {
+// Initialize Database connection (ensureInitialized shares the promise with query() calls)
+db.ensureInitialized().then(() => {
   console.log('Database initialized successfully.');
 }).catch(err => {
-  console.error('Failed to initialize database:', err);
+  console.error('Failed to initialize database:', err.message);
 });
 
 // Import Route Handlers

@@ -29,13 +29,15 @@ function getFirestore() {
   return firestoreDb;
 }
 
-// Retry Firestore every 60s if it was unavailable
-setInterval(async () => {
-  if (firestoreAvailable === false) {
-    firestoreAvailable = null;
-    await checkFirestore();
-  }
-}, 60000);
+// Retry Firestore every 60s if it was unavailable (local dev only — serverless doesn't support intervals)
+if (!process.env.VERCEL) {
+  setInterval(async () => {
+    if (firestoreAvailable === false) {
+      firestoreAvailable = null;
+      await checkFirestore();
+    }
+  }, 60000);
+}
 
 // ══════════════════════════════════════════════
 //  USER FUNCTIONS

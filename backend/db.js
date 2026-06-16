@@ -3,11 +3,16 @@ const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
 
-dotenv.config();
+// Load .env from the backend directory (works both locally and on Vercel)
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 let dbType = 'sqlite';
 let pgPool = null;
 let sqliteDb = null;
+let _initPromise = null; // Guards against race conditions on Vercel serverless
+
+// Log environment for debugging on Vercel
+console.log(`[DB] VERCEL=${process.env.VERCEL || 'false'}, DATABASE_URL=${process.env.DATABASE_URL ? 'SET (' + process.env.DATABASE_URL.substring(0, 30) + '...)' : 'NOT SET'}`);
 
 // Initialize Database connection
 async function initDb() {
@@ -18,19 +23,27 @@ async function initDb() {
     pgPool = new Pool({
       connectionString: pgUrl,
       ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
-      connectionTimeoutMillis: 5000
+      connectionTimeoutMillis: 10000
     });
 
     try {
       // Test connection
       await pgPool.query('SELECT NOW()');
       dbType = 'postgres';
-      console.log('Successfully connected to PostgreSQL Database.');
+      console.log('[DB] Successfully connected to PostgreSQL (Neon).');
     } catch (err) {
-      console.warn('PostgreSQL connection failed. Falling back to SQLite. Error:', err.message);
+      console.error('[DB] PostgreSQL connection FAILED:', err.message);
+      if (process.env.VERCEL) {
+        // On Vercel, do NOT fall back to SQLite — it won't work
+        throw new Error('PostgreSQL connection failed on Vercel: ' + err.message);
+      }
+      console.warn('[DB] Falling back to SQLite for local development.');
       dbType = 'sqlite';
       initSqlite();
     }
+  } else if (process.env.VERCEL) {
+    // On Vercel (serverless), SQLite cannot work — no persistent filesystem
+    throw new Error('DATABASE_URL is not set. Please add it in Vercel Project Settings → Environment Variables.');
   } else {
     dbType = 'sqlite';
     initSqlite();
@@ -40,29 +53,35 @@ async function initDb() {
   await setupDatabase();
 }
 
+// Ensure DB is fully initialized before any query (prevents race conditions on Vercel cold starts)
+function ensureInitialized() {
+  if (!_initPromise) {
+    _initPromise = initDb().catch(err => {
+      console.error('[DB] Initialization failed:', err.message);
+      _initPromise = null; // Allow retry on next request
+      throw err;
+    });
+  }
+  return _initPromise;
+}
+
 function initSqlite() {
   const sqlite3 = require('sqlite3').verbose();
   const dbPath = path.resolve(__dirname, 'one_citizen.db');
-  console.log(`Connecting to local SQLite database at: ${dbPath}`);
+  console.log(`[DB] Connecting to local SQLite at: ${dbPath}`);
   sqliteDb = new sqlite3.Database(dbPath);
 }
 
-// Helper to run query regardless of active DB type
-function query(text, params = []) {
-  return new Promise((resolve, reject) => {
-    if (dbType === 'postgres') {
-      pgPool.query(text, params)
-        .then(res => resolve({ rows: res.rows, rowCount: res.rowCount }))
-        .catch(err => reject(err));
-    } else {
-      // SQLite uses ? instead of $1, $2 etc.
-      let sqliteText = text;
-      // Convert $1, $2... to ?
-      sqliteText = sqliteText.replace(/\$\d+/g, '?');
+// Internal query — does NOT wait for init (used during setup to avoid circular deadlock)
+async function rawQuery(text, params = []) {
+  if (dbType === 'postgres') {
+    const res = await pgPool.query(text, params);
+    return { rows: res.rows, rowCount: res.rowCount };
+  } else {
+    let sqliteText = text.replace(/\$\d+/g, '?');
+    const isInsert = sqliteText.trim().toUpperCase().startsWith('INSERT');
 
-      // Check if INSERT query
-      const isInsert = sqliteText.trim().toUpperCase().startsWith('INSERT');
-
+    return new Promise((resolve, reject) => {
       if (isInsert || sqliteText.trim().toUpperCase().startsWith('UPDATE') || sqliteText.trim().toUpperCase().startsWith('DELETE')) {
         sqliteDb.run(sqliteText, params, function(err) {
           if (err) return reject(err);
@@ -74,8 +93,14 @@ function query(text, params = []) {
           resolve({ rows: rows || [], rowCount: rows ? rows.length : 0 });
         });
       }
-    }
-  });
+    });
+  }
+}
+
+// Public query — waits for DB init to complete (safe for route handlers)
+async function query(text, params = []) {
+  await ensureInitialized();
+  return rawQuery(text, params);
 }
 
 // Create database schemas and insert default data if tables are empty
@@ -111,7 +136,7 @@ async function setupDatabase() {
 
   // Migration: add officer_notes column if missing
   try {
-    await query("ALTER TABLE applications ADD COLUMN officer_notes TEXT");
+    await rawQuery("ALTER TABLE applications ADD COLUMN officer_notes TEXT");
     console.log('Added officer_notes column to applications');
   } catch (e) {
     // Column already exists — ignore
@@ -119,20 +144,20 @@ async function setupDatabase() {
 
   // Migration: add updated_at column if missing
   try {
-    await query("ALTER TABLE applications ADD COLUMN updated_at TEXT");
+    await rawQuery("ALTER TABLE applications ADD COLUMN updated_at TEXT");
     console.log('Added updated_at column to applications');
   } catch (e) {
     // Column already exists — ignore
   }
 
   // Migration: add category and created_at to schemes if missing
-  try { await query("ALTER TABLE schemes ADD COLUMN category TEXT DEFAULT 'General'"); } catch(e) {}
-  try { await query("ALTER TABLE schemes ADD COLUMN created_at TEXT"); } catch(e) {}
+  try { await rawQuery("ALTER TABLE schemes ADD COLUMN category TEXT DEFAULT 'General'"); } catch(e) {}
+  try { await rawQuery("ALTER TABLE schemes ADD COLUMN created_at TEXT"); } catch(e) {}
 
   // Re-seed schemes if count doesn't match expected set (16 schemes)
-  const scCount = await query('SELECT count(*) as count FROM schemes');
+  const scCount = await rawQuery('SELECT count(*) as count FROM schemes');
   if (parseInt(scCount.rows[0].count) !== 16) {
-    await query('DELETE FROM schemes');
+    await rawQuery('DELETE FROM schemes');
     console.log('Re-seeding welfare schemes with latest rules...');
   }
 
@@ -142,7 +167,7 @@ async function setupDatabase() {
 
 async function seedDefaultData() {
   // 1. Seed Services
-  const servicesCheck = await query('SELECT count(*) as count FROM services');
+  const servicesCheck = await rawQuery('SELECT count(*) as count FROM services');
   const serviceCount = parseInt(servicesCheck.rows[0].count);
 
   if (serviceCount === 0) {
@@ -214,7 +239,7 @@ async function seedDefaultData() {
     ];
 
     for (let s of defaultServices) {
-      await query(
+      await rawQuery(
         `INSERT INTO services (name, category, eligibility_rules, required_documents, fees, processing_time, steps) 
          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
         [s.name, s.category, s.eligibility_rules, s.required_documents, s.fees, s.processing_time, s.steps]
@@ -223,7 +248,7 @@ async function seedDefaultData() {
   }
 
   // 2. Seed Schemes
-  const schemesCheck = await query('SELECT count(*) as count FROM schemes');
+  const schemesCheck = await rawQuery('SELECT count(*) as count FROM schemes');
   const schemeCount = parseInt(schemesCheck.rows[0].count);
 
   if (schemeCount === 0) {
@@ -265,7 +290,7 @@ async function seedDefaultData() {
     ];
 
     for (let sc of defaultSchemes) {
-      await query(
+      await rawQuery(
         `INSERT INTO schemes (name, description, benefit_amount, eligibility_rules, required_documents, category, created_at) 
          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
         [sc.name, sc.description, sc.benefit_amount, sc.eligibility_rules, sc.required_documents, sc.category || 'General', sc.created_at || new Date().toISOString()]
@@ -274,7 +299,7 @@ async function seedDefaultData() {
   }
 
   // 3. Seed MeeSeva Centers
-  const centersCheck = await query('SELECT count(*) as count FROM meeseva_centers');
+  const centersCheck = await rawQuery('SELECT count(*) as count FROM meeseva_centers');
   const centersCount = parseInt(centersCheck.rows[0].count);
 
   if (centersCount === 0) {
@@ -328,7 +353,7 @@ async function seedDefaultData() {
     ];
 
     for (let c of defaultCenters) {
-      await query(
+      await rawQuery(
         `INSERT INTO meeseva_centers (name, latitude, longitude, address, rating, wait_time, services) 
          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
         [c.name, c.latitude, c.longitude, c.address, c.rating, c.wait_time, c.services]
@@ -337,14 +362,14 @@ async function seedDefaultData() {
   }
 
   // 4. Seed Officer/Admin Account
-  const adminCheck = await query("SELECT count(*) as count FROM users WHERE role = 'admin'");
+  const adminCheck = await rawQuery("SELECT count(*) as count FROM users WHERE role = 'admin'");
   const adminCount = parseInt(adminCheck.rows[0].count);
 
   if (adminCount === 0) {
     console.log('Seeding officer admin account...');
     const bcrypt = require('bcryptjs');
     const hash = await bcrypt.hash('officer123', 10);
-    await query(
+    await rawQuery(
       `INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3)`,
       ['officer@onecitizen.gov.in', hash, 'admin']
     );
@@ -354,6 +379,7 @@ async function seedDefaultData() {
 
 module.exports = {
   initDb,
+  ensureInitialized,
   query,
   getDbType: () => dbType
 };
