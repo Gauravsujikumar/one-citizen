@@ -1,0 +1,13 @@
+node_modules/
+.env
+*.db
+backend/uploads/*
+!backend/uploads/.gitkeep
+.gemini/
+ai_services/__pycache__/
+ai_services/packages/
+web_demo/scratch/
+backend/firebase-service-account.json
+backend/*.traineddata
+backend/package-lock.json
+ocr_debug.log

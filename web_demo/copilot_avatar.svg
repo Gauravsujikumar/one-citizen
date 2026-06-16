@@ -1,0 +1,40 @@
+<svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block; max-width: 100%;">
+  <!-- Premium gradient background card -->
+  <rect width="60" height="60" rx="16" fill="url(#bot-bg-grad)"/>
+  
+  <!-- Outer glowing rings -->
+  <circle cx="30" cy="30" r="20" stroke="#08573c" stroke-width="1.5" stroke-opacity="0.2" stroke-dasharray="4 4"/>
+  <circle cx="30" cy="30" r="16" stroke="#EAB308" stroke-width="1" stroke-opacity="0.3"/>
+  
+  <!-- Symmetrical AI Core - Brain/Shield structure -->
+  <path d="M30 15C33 15 38 18 38 23C38 31 32 37 30 39C28 37 22 31 22 23C22 18 27 15 30 15Z" fill="url(#shield-fill)" stroke="#08573c" stroke-width="2"/>
+  
+  <!-- Integrated clean Kakatiya gate/emblem inside the shield -->
+  <path d="M27 24 H33 V32 M29 27 H31" stroke="#EAB308" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Glowing AI node dots -->
+  <circle cx="30" cy="21" r="2.5" fill="#EAB308"/>
+  <circle cx="25" cy="27" r="2" fill="#08573c"/>
+  <circle cx="35" cy="27" r="2" fill="#08573c"/>
+  
+  <!-- Connection lines -->
+  <path d="M30 23.5V26.5" stroke="#EAB308" stroke-width="1.2"/>
+  <path d="M26.5 27H29.5" stroke="#08573c" stroke-width="1"/>
+  <path d="M30.5 27H33.5" stroke="#08573c" stroke-width="1"/>
+  
+  <!-- Sparkles/Stars -->
+  <path d="M42 16L43 19L46 20L43 21L42 24L41 21L38 20L41 19L42 16Z" fill="#EAB308"/>
+  <path d="M18 36L19 38L21 39L19 40L18 42L17 40L15 39L17 38L18 36Z" fill="#08573c" fill-opacity="0.7"/>
+
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="bot-bg-grad" x1="0" y1="0" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#E6F4EA"/>
+      <stop offset="100%" stop-color="#F2FAF5"/>
+    </linearGradient>
+    <linearGradient id="shield-fill" x1="22" y1="15" x2="38" y2="39" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#E6F4EA"/>
+    </linearGradient>
+  </defs>
+</svg>

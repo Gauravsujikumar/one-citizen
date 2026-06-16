@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0F294A">
+  <title>OneCitizen AI - Citizen Digital Twin & Copilot Portal</title>
+  <!-- Google Fonts & Leaflet Maps -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css?v=22">
+
+  <!-- Firebase SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <!-- Your Firebase project config (fill in firebase-config.js) -->
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+
+  <!-- Unified Main Dashboard Container -->
+  <div class="app-container">
+    
+    <!-- Left Pane: Smartphone Mockup Frame -->
+    <div class="phone-column">
+      <div class="phone-wrapper">
+        <div class="phone-chassis">
+          <!-- Notch & Speaker -->
+          <div class="phone-notch"></div>
+          
+          <!-- Screen Status Bar -->
+          <div class="phone-status-bar">
+            <span class="status-time" id="status-clock">13:00</span>
+            <div class="status-icons">
+              <span class="icon-wifi">📶</span>
+              <span class="icon-battery">🔋</span>
+            </div>
+          </div>
+          
+          <!-- Phone Screen Contents (Scrollable inside) -->
+          <div class="phone-screen">
+
+            <!-- Fixed Telangana Landmarks Watermark Background -->
+            <div id="telangana-watermark" style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:0;pointer-events:none;overflow:hidden;">
+              <!-- Charminar (bottom-right) -->
+              <svg viewBox="0 0 200 260" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;bottom:60px;right:-10px;width:160px;height:210px;opacity:0.035;">
+                <!-- Base -->
+                <rect x="30" y="200" width="140" height="20" rx="2" stroke="#046A38" stroke-width="1.5"/>
+                <!-- Main arch -->
+                <rect x="45" y="100" width="110" height="100" rx="3" stroke="#046A38" stroke-width="1.5"/>
+                <!-- Central arch opening -->
+                <path d="M75 200 Q75 155 100 145 Q125 155 125 200" stroke="#046A38" stroke-width="1.5"/>
+                <!-- Small arches -->
+                <path d="M50 200 Q50 175 65 170 Q80 175 80 200" stroke="#046A38" stroke-width="1"/>
+                <path d="M120 200 Q120 175 135 170 Q150 175 150 200" stroke="#046A38" stroke-width="1"/>
+                <!-- Upper balcony -->
+                <rect x="45" y="95" width="110" height="8" rx="1" stroke="#046A38" stroke-width="1"/>
+                <!-- Four Minarets -->
+                <rect x="38" y="40" width="10" height="60" rx="2" stroke="#046A38" stroke-width="1.2"/>
+                <rect x="152" y="40" width="10" height="60" rx="2" stroke="#046A38" stroke-width="1.2"/>
+                <rect x="70" y="55" width="8" height="40" rx="2" stroke="#046A38" stroke-width="1"/>
+                <rect x="122" y="55" width="8" height="40" rx="2" stroke="#046A38" stroke-width="1"/>
+                <!-- Minaret tops (domes) -->
+                <circle cx="43" cy="38" r="6" stroke="#046A38" stroke-width="1.2"/>
+                <circle cx="157" cy="38" r="6" stroke="#046A38" stroke-width="1.2"/>
+                <circle cx="74" cy="53" r="5" stroke="#046A38" stroke-width="1"/>
+                <circle cx="126" cy="53" r="5" stroke="#046A38" stroke-width="1"/>
+                <!-- Spires -->
+                <line x1="43" y1="32" x2="43" y2="22" stroke="#046A38" stroke-width="1"/>
+                <line x1="157" y1="32" x2="157" y2="22" stroke="#046A38" stroke-width="1"/>
+                <line x1="74" y1="48" x2="74" y2="40" stroke="#046A38" stroke-width="0.8"/>
+                <line x1="126" y1="48" x2="126" y2="40" stroke="#046A38" stroke-width="0.8"/>
+                <!-- Central dome -->
+                <ellipse cx="100" cy="88" rx="18" ry="10" stroke="#046A38" stroke-width="1"/>
+                <line x1="100" y1="78" x2="100" y2="68" stroke="#046A38" stroke-width="1"/>
+              </svg>
+
+              <!-- Warangal Thoranam / Kakatiya Gateway (top-left) -->
+              <svg viewBox="0 0 180 220" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:120px;left:-10px;width:140px;height:180px;opacity:0.03;">
+                <!-- Base platform -->
+                <rect x="20" y="190" width="140" height="12" rx="2" stroke="#046A38" stroke-width="1.2"/>
+                <!-- Left pillar -->
+                <rect x="30" y="60" width="20" height="130" rx="2" stroke="#046A38" stroke-width="1.3"/>
+                <!-- Right pillar -->
+                <rect x="130" y="60" width="20" height="130" rx="2" stroke="#046A38" stroke-width="1.3"/>
+                <!-- Main arch -->
+                <path d="M30 60 Q30 20 90 15 Q150 20 150 60" stroke="#046A38" stroke-width="1.5" fill="none"/>
+                <!-- Inner decorative arch -->
+                <path d="M40 80 Q40 45 90 38 Q140 45 140 80" stroke="#046A38" stroke-width="1"/>
+                <!-- Top decorative element -->
+                <path d="M70 15 Q90 -5 110 15" stroke="#046A38" stroke-width="1"/>
+                <line x1="90" y1="10" x2="90" y2="-5" stroke="#046A38" stroke-width="0.8"/>
+                <!-- Pillar ornaments -->
+                <line x1="30" y1="100" x2="50" y2="100" stroke="#046A38" stroke-width="0.8"/>
+                <line x1="130" y1="100" x2="150" y2="100" stroke="#046A38" stroke-width="0.8"/>
+                <line x1="30" y1="140" x2="50" y2="140" stroke="#046A38" stroke-width="0.8"/>
+                <line x1="130" y1="140" x2="150" y2="140" stroke="#046A38" stroke-width="0.8"/>
+                <!-- Lotus base ornaments -->
+                <ellipse cx="40" cy="185" rx="12" ry="5" stroke="#046A38" stroke-width="0.8"/>
+                <ellipse cx="140" cy="185" rx="12" ry="5" stroke="#046A38" stroke-width="0.8"/>
+              </svg>
+            </div>
+            
+            <!-- 1. Splash Screen -->
+            <div id="screen-splash" class="screen active">
+              <!-- Phase 1: OneCitizen Centered App Logo -->
+              <div id="splash-phase1" class="splash-phase active">
+                <img src="app_logo.jpg" class="splash-app-logo" alt="OneCitizen Logo">
+              </div>
+
+              <!-- Phase 2: Government of Telangana State Screen -->
+              <div id="splash-phase2" class="splash-phase">
+                <div class="tg-gov-splash-logo-wrap">
+                  <div class="tg-splash-seal">
+                    <svg class="tg-splash-seal" viewBox="0 0 24 24" fill="none" stroke="var(--warning-gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>
+                  </div>
+                  <img src="telangana_logo.jpg" class="tg-state-logo-img" alt="Government of Telangana Logo">
+                </div>
+                <!-- Government Titles -->
+                <h2 style="color: #ffffff; font-size: 16px; font-weight: 700; margin: 12px 0 4px; letter-spacing: 0.5px;">Government of Telangana</h2>
+                <h3 style="color: var(--warning-gold); font-size: 13px; font-weight: 600; margin: 0 0 12px;">తెలంగాణ ప్రభుత్వం</h3>
+                <div class="spinner" style="border-top-color: var(--success-emerald);"></div>
+              </div>
+            </div>
+
+            <!-- 2. Login/Signup Screen -->
+            <div id="screen-login" class="screen">
+              <!-- Accessibility (hidden, required by JS) -->
+              <button id="btn-font-toggle" style="display:none;" title="Toggle Font Size"></button>
+
+              <!-- Glassmorphism Language Switcher Top Bar -->
+              <div class="login-lang-top-glass">
+                <span data-lang="en" class="active">English</span>
+                <span class="llt-sep">|</span>
+                <span data-lang="te">తెలుగు</span>
+                <span class="llt-sep">|</span>
+                <span data-lang="hi">हिन्दी</span>
+              </div>
+
+              <!-- Scrollable Content -->
+              <div class="login-content">
+
+                <!-- Top Section (Clean, Spacious) -->
+                <div class="login-top-section">
+                  <!-- App Logo (slightly smaller) -->
+                  <div class="login-logo-wrap-small">
+                    <img src="app_logo.jpg" class="login-app-logo-small" alt="OneCitizen Logo">
+                  </div>
+
+                  <!-- Title Block -->
+                  <div class="login-title-block">
+                    <h1 class="login-main-title">OneCitizen AI</h1>
+                    <p class="login-tagline-bold">Government Services Simplified</p>
+                    
+                    <!-- Small badges row -->
+                    <div class="login-badge-row">
+                      <span class="badge-pill">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: middle;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Telangana Pilot
+                      </span>
+                      <span class="badge-pill">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: middle;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                        AI Powered
+                      </span>
+                      <span class="badge-pill">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 3px; vertical-align: middle;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Secure
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Login / Create Account Buttons -->
+                <div class="login-middle-section">
+                  
+                  <!-- Primary Login Button (shown first) -->
+                  <div id="login-entry-buttons" style="padding: 0 20px;">
+                    <button id="btn-show-login-options" class="btn btn-primary-gradient login-otp-btn" style="width:100%; font-size:14px; font-weight:700; padding:14px; letter-spacing:0.3px;" onclick="document.getElementById('login-entry-buttons').style.display='none'; var p=document.getElementById('login-options-panel'); p.style.display='block'; p.style.animation='fadeInUp 0.3s ease';">
+                      Login
+                    </button>
+                    <p style="text-align:center; margin-top:14px; font-size:12px; color:#64748B;">
+                      New user? <span id="btn-show-signup" class="link" style="color:#046A38; font-weight:700; cursor:pointer; text-decoration:underline;" onclick="document.getElementById('login-entry-buttons').style.display='none'; var p=document.getElementById('login-options-panel'); p.style.display='block'; p.style.animation='fadeInUp 0.3s ease'; document.getElementById('confirm-password-group').style.display='block'; document.getElementById('email-login-btn-text').textContent='Create Account'; window._isSignupMode=true;">Create Account</span>
+                    </p>
+                  </div>
+
+                  <!-- Login Options (hidden initially, revealed on click) -->
+                  <div id="login-options-panel" style="display:none;">
+
+                    <!-- Email Login Form -->
+                    <div id="email-login-form">
+                      <div class="form-group">
+                        <label for="login-email" style="font-size:12px; font-weight:600; color:#374151; margin-bottom:6px; display:block;">Email Address</label>
+                        <input type="email" id="login-email" placeholder="Enter your email" style="width:100%; padding:12px 14px; border:1.5px solid #D1D5DB; border-radius:10px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#046A38'" onblur="this.style.borderColor='#D1D5DB'">
+                      </div>
+                      <div class="form-group" style="margin-top:12px;">
+                        <label for="login-password" style="font-size:12px; font-weight:600; color:#374151; margin-bottom:6px; display:block;">Password</label>
+                        <div style="position:relative;">
+                          <input type="password" id="login-password" placeholder="Enter your password" style="width:100%; padding:12px 40px 12px 14px; border:1.5px solid #D1D5DB; border-radius:10px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#046A38'" onblur="this.style.borderColor='#D1D5DB'">
+                          <span onclick="var p=document.getElementById('login-password'); p.type=p.type==='password'?'text':'password';" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; color:#94A3B8; font-size:16px;">👁</span>
+                        </div>
+                      </div>
+                      <!-- Confirm Password (only for signup, hidden by default) -->
+                      <div class="form-group" id="confirm-password-group" style="margin-top:12px; display:none;">
+                        <label for="login-confirm-password" style="font-size:12px; font-weight:600; color:#374151; margin-bottom:6px; display:block;">Confirm Password</label>
+                        <input type="password" id="login-confirm-password" placeholder="Re-enter password" style="width:100%; padding:12px 14px; border:1.5px solid #D1D5DB; border-radius:10px; font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box;" onfocus="this.style.borderColor='#046A38'" onblur="this.style.borderColor='#D1D5DB'">
+                      </div>
+                      <div id="login-error-msg" style="display:none; color:#EF4444; font-size:11px; margin-top:8px; text-align:center; font-weight:600;"></div>
+                      <button class="btn btn-primary-gradient login-otp-btn" id="btn-email-login" style="margin-top:16px; width:100%; font-size:14px; font-weight:700; padding:13px;">
+                        <span class="btn-text" id="email-login-btn-text">Login</span>
+                        <span class="spinner-inline" style="display:none;"></span>
+                      </button>
+                    </div>
+
+
+
+
+                    <!-- Back link -->
+                    <p style="text-align:center; margin-top:8px; font-size:12px; color:#64748B;">
+                      <span id="btn-back-to-entry" class="link" style="color:#046A38; cursor:pointer;" onclick="document.getElementById('login-options-panel').style.display='none'; document.getElementById('login-entry-buttons').style.display='block'; document.getElementById('confirm-password-group').style.display='none'; document.getElementById('email-login-btn-text').textContent='Login'; window._isSignupMode=false;">← Back</span>
+                    </p>
+                  </div>
+
+                </div>
+
+
+                <!-- Spacer to push footer elements to bottom -->
+                <div class="spacer-flex"></div>
+
+                <!-- Bottom Section (pinned to bottom) -->
+                <div class="login-bottom-section" style="position:absolute; bottom:16px; left:0; right:0; margin-top:0; padding:0 24px; display:flex; flex-direction:column; align-items:center; text-align:center;">
+                  <!-- Trust Section -->
+                  <div class="login-trust-section" style="margin-bottom:8px;">
+                    <p class="trust-message" style="text-align:center; margin:0; line-height:1.4;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#046A38" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px; position:relative; top:-1px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span style="vertical-align:middle;">Your documents are encrypted and used only for service applications.</span>
+                    </p>
+                  </div>
+                  <div class="bottom-links">
+                    <span class="bottom-link">Terms of Service</span>
+                    <span class="bottom-link-sep">|</span>
+                    <span class="bottom-link">Privacy Policy</span>
+                  </div>
+                </div>
+
+                <!-- Hidden Carousel Elements for app.js Compatibility -->
+                <div id="features-carousel" style="display:none;">
+                  <div class="carousel-slide active" data-index="0"></div>
+                  <div class="carousel-slide" data-index="1"></div>
+                  <div class="carousel-slide" data-index="2"></div>
+                  <div class="carousel-slide" data-index="3"></div>
+                  <div class="carousel-slide" data-index="4"></div>
+                  <div class="carousel-indicators">
+                    <span class="indicator active" data-slide="0"></span>
+                    <span class="indicator" data-slide="1"></span>
+                    <span class="indicator" data-slide="2"></span>
+                    <span class="indicator" data-slide="3"></span>
+                    <span class="indicator" data-slide="4"></span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- 2b. Onboarding Screen (First-Time User) -->
+            <div id="screen-onboarding" class="screen">
+              <div class="onboarding-container">
+                
+                <!-- Cards Slider -->
+                <div class="onboarding-slider" id="onboarding-slider">
+                  
+                  <!-- Slide 1: Upload Once -->
+                  <div class="onboarding-slide active" data-index="0">
+                    <div class="onboarding-illustration-container">
+                      <div class="illust-upload-once">
+                        <div class="glow-bg"></div>
+
+<!-- Folder Back Cover -->
+                        <div class="folder-back">
+                          <svg class="folder-svg-layer" viewBox="0 0 200 110" preserveAspectRatio="none">
+                            <path d="M 0,20 C 0,14 4,10 10,10 H 110 L 122,0 H 180 L 190,10 H 190 C 196,10 200,14 200,20 V 100 C 200,106 196,110 190,110 H 10 C 4,110 0,106 0,100 Z" fill="url(#folderBackGrad)" stroke="#052a1b" stroke-width="1.5"/>
+                            <defs>
+                              <linearGradient id="folderBackGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#09472e" />
+                                <stop offset="100%" stop-color="#063220" />
+                              </linearGradient>
+                            </defs>
+                          </svg>
+                        </div>
+
+                        <!-- Document Cards Fanned Out -->
+                        <div class="doc-cards-fan">
+                          <!-- Aadhaar Card Mockup -->
+                          <div class="onb-doc-card card-aadhaar">
+                            <div class="doc-header-band saffron-green"></div>
+                            <div class="doc-card-body">
+                              <div class="doc-avatar">
+                                <svg class="doc-svg-avatar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                              </div>
+                              <div class="doc-details">
+                                <span class="doc-title" style="color:#EA580C">AADHAAR</span>
+                                <div class="doc-text-line" style="width: 100%"></div>
+                                <div class="doc-text-line" style="width: 80%"></div>
+                                <div class="doc-text-line" style="width: 90%"></div>
+                              </div>
+                            </div>
+                            <div class="doc-barcode"></div>
+                          </div>
+
+                          <!-- PAN Card Mockup -->
+                          <div class="onb-doc-card card-pan">
+                            <div class="doc-header-band pan-blue"></div>
+                            <div class="doc-card-body">
+                              <div class="doc-pan-chip"></div>
+                              <div class="doc-details">
+                                <span class="doc-title" style="color:#0284C7">PAN CARD</span>
+                                <div class="doc-text-line" style="width: 90%"></div>
+                                <div class="doc-text-line" style="width: 70%"></div>
+                              </div>
+                            </div>
+                            <div class="doc-signature"></div>
+                          </div>
+
+                          <!-- Income Certificate Mockup -->
+                          <div class="onb-doc-card card-income">
+                            <div class="doc-cert-seal">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/><circle cx="12" cy="12" r="6" stroke-dasharray="2 2"/></svg>
+                            </div>
+                            <div class="doc-details cert-style">
+                              <span class="doc-title" style="color:#16A34A">INCOME CERT</span>
+                              <div class="doc-text-line cert-line" style="width: 95%"></div>
+                              <div class="doc-text-line cert-line" style="width: 85%"></div>
+                              <div class="doc-text-line cert-line" style="width: 90%"></div>
+                            </div>
+                            <div class="doc-stamp stamp-green">APPROVED</div>
+                          </div>
+
+                          <!-- Caste Certificate Mockup -->
+                          <div class="onb-doc-card card-caste">
+                            <div class="doc-cert-seal">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/><circle cx="12" cy="12" r="6" stroke-dasharray="2 2"/></svg>
+                            </div>
+                            <div class="doc-details cert-style">
+                              <span class="doc-title" style="color:#7C3AED">CASTE CERT</span>
+                              <div class="doc-text-line cert-line" style="width: 95%"></div>
+                              <div class="doc-text-line cert-line" style="width: 80%"></div>
+                              <div class="doc-text-line cert-line" style="width: 90%"></div>
+                            </div>
+                            <div class="doc-stamp stamp-purple">VERIFIED</div>
+                          </div>
+                        </div>
+
+<!-- Folder Front Cover -->
+                        <div class="folder-front">
+                          <!-- Folder Front SVG shape (Solid Opaque Green) -->
+                          <svg class="folder-svg-layer" viewBox="0 0 200 96" preserveAspectRatio="none">
+                            <path d="M 0,10 C 0,4 4,0 10,0 H 70 L 82,12 H 190 C 196,12 200,16 200,22 V 86 C 200,92 196,96 190,96 H 10 C 4,96 0,92 0,86 Z" fill="url(#folderFrontGrad)" stroke="#084D30" stroke-width="1.5"/>
+                            <defs>
+                              <linearGradient id="folderFrontGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#0D6E45" />
+                                <stop offset="100%" stop-color="#0a5636" />
+                              </linearGradient>
+                            </defs>
+                          </svg>
+                          <div class="cloud-up-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="onboarding-content-block">
+                      <div class="subtitle-icon-circle">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+                      </div>
+                      <h2 class="onboarding-title">Upload Once</h2>
+                      <p class="onboarding-desc">Store your documents securely and reuse them across government services anytime.</p>
+                    </div>
+                  </div>
+
+                  <!-- Slide 2: Find Eligible Schemes -->
+                  <div class="onboarding-slide" data-index="1">
+                    <div class="onboarding-illustration-container">
+                      <div class="illust-eligible-schemes">
+                        <div class="glow-bg"></div>
+                        <!-- Scheme card matching track-dash-preview size -->
+                        <div style="width: 270px; background: #fff; border-radius: 16px; border: 1px solid #E2E8F0; box-shadow: 0 10px 30px rgba(0,0,0,0.06); padding: 12px; box-sizing: border-box; display: flex; flex-direction: column; z-index: 5;">
+                          <div style="background: #0D6E45; color: #fff; border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <div style="width: 22px; height: 22px; background: #fff; color: #0D6E45; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;">✓</div>
+                            <div>
+                              <div style="font-size: 8px; opacity: 0.85;">You are eligible for</div>
+                              <div style="font-size: 14px; font-weight: 800; color: #FCD34D;">12 schemes</div>
+                            </div>
+                          </div>
+                          <div style="display: flex; flex-direction: column; gap: 5px; flex: 1;">
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 600; color: #334155;">
+                              <span>🏠 Housing Assistance</span>
+                              <span style="color: #94A3B8;">›</span>
+                            </div>
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 600; color: #334155;">
+                              <span>🎓 Education Scholarship</span>
+                              <span style="color: #94A3B8;">›</span>
+                            </div>
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 600; color: #334155;">
+                              <span>💙 Health Benefits</span>
+                              <span style="color: #94A3B8;">›</span>
+                            </div>
+                            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 600; color: #334155;">
+                              <span>💼 Financial Support</span>
+                              <span style="color: #94A3B8;">›</span>
+                            </div>
+                          </div>
+                          <div style="background: #0D6E45; color: #fff; text-align: center; font-size: 11px; font-weight: 700; padding: 8px; border-radius: 8px; margin-top: 8px;">Apply Now</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="onboarding-content-block">
+                      <div class="subtitle-icon-circle">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                      </div>
+                      <h2 class="onboarding-title">Find Eligible Schemes</h2>
+                      <p class="onboarding-desc">Our AI analyzes your profile and recommends government services you qualify for.</p>
+                    </div>
+                  </div>
+
+                  <!-- Slide 3: Track Everything -->
+                  <div class="onboarding-slide" data-index="2">
+                    <div class="onboarding-illustration-container">
+                      <div class="illust-track-everything">
+                        <div class="glow-bg"></div>
+                        <div class="track-dash-preview">
+                          <div class="track-dash-header">
+                            <span>My Applications</span>
+                            <div class="bell-nav-unread">🔔<span class="red-dot-unread"></span></div>
+                          </div>
+                          <div class="track-dash-grid">
+                            <div class="dash-grid-card">
+                              <span class="card-num color-total">12</span>
+                              <span class="card-label">Total</span>
+                            </div>
+                            <div class="dash-grid-card">
+                              <span class="card-num color-approved">5</span>
+                              <span class="card-label">Approved</span>
+                            </div>
+                            <div class="dash-grid-card">
+                              <span class="card-num color-progress">4</span>
+                              <span class="card-label">In Progress</span>
+                            </div>
+                            <div class="dash-grid-card">
+                              <span class="card-num color-review">3</span>
+                              <span class="card-label">Under Review</span>
+                            </div>
+                          </div>
+                          <div class="track-dash-list-title">
+                            <span>Recent Applications</span>
+                            <span class="dash-view-all">View All</span>
+                          </div>
+                          <div class="track-dash-list">
+                            <div class="track-dash-item">
+                              <span class="item-name">📄 Income Certificate</span>
+                              <span class="item-badge b-approved">APPROVED</span>
+                            </div>
+                            <div class="track-dash-item">
+                              <span class="item-name">📜 Caste Certificate</span>
+                              <span class="item-badge b-review">UNDER REVIEW</span>
+                            </div>
+                            <div class="track-dash-item">
+                              <span class="item-name">🎓 Scholarship Application</span>
+                              <span class="item-badge b-progress">IN PROGRESS</span>
+                            </div>
+                            <div class="track-dash-item">
+                              <span class="item-name">🏠 Housing Assistance</span>
+                              <span class="item-badge b-approved">APPROVED</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="onboarding-content-block">
+                      <div class="subtitle-icon-circle">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                      </div>
+                      <h2 class="onboarding-title">Track Everything</h2>
+                      <p class="onboarding-desc">Track all your applications, approvals and updates in real-time from one dashboard.</p>
+                    </div>
+                  </div>
+                  
+                </div>
+
+                <!-- Dots indicator -->
+                <div class="onboarding-dots" id="onboarding-dots">
+                  <span class="onboarding-dot active" data-index="0"></span>
+                  <span class="onboarding-dot" data-index="1"></span>
+                  <span class="onboarding-dot" data-index="2"></span>
+                </div>
+
+                <!-- Actions -->
+<div class="onboarding-actions">
+                  <button class="btn onboarding-btn" id="btn-onboarding-next">
+                    <span class="onboarding-btn-text">Next</span>
+                    <span class="onboarding-btn-arrow">→</span>
+                  </button>
+                  <span class="onboarding-skip-link" id="btn-onboarding-skip" style="display:none;">Skip Onboarding</span>
+                </div>
+              </div>
+            </div>
+
+
+            <!-- 3. Dashboard Screen -->
+            <div id="screen-dashboard" class="screen">
+              <!-- Header -->
+              <div class="screen-header home-header" style="display:flex !important;flex-direction:column !important;align-items:stretch !important;padding:10px 14px 10px 14px !important;">
+                <div class="header-top-row" style="display:flex !important;justify-content:space-between !important;align-items:center !important;width:100% !important;">
+                  <div class="user-greeting" style="flex:1;min-width:0;text-align:left !important;">
+                    <p id="lbl-namaste" style="font-size:11px;color:rgba(255,255,255,0.7);margin:0 0 2px;font-weight:500;text-align:left !important;">Good Morning</p>
+                    <h3 id="dash-greeting-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left !important;margin:0;font-size:16px;font-weight:800;color:white;">Welcome 👋</h3>
+                  </div>
+                  <div class="header-icons-group" style="margin-left:auto;flex-shrink:0;">
+                    <span class="alert-bell-circle" id="bell-nav">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9z"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                      <span class="badge-dot-count" id="bell-badge-count" style="display:none;">0</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="screen-scroll-container">
+                <!-- AI Citizen Copilot Card -->
+                <div class="copilot-card-modern">
+                  <div class="copilot-card-top">
+                    <div class="copilot-robot-wrap">
+                      <img src="copilot_avatar.svg" alt="AI Copilot Logo" style="width: 60px; height: 60px; object-fit: contain;">
+                    </div>
+                    <div class="copilot-card-text">
+                      <h4>AI Citizen Copilot <span class="sparkle-icon">✨</span></h4>
+                      <p>Your AI assistant for all government services</p>
+                    </div>
+                  </div>
+                  <div class="copilot-search-bar-wrap">
+                    <input type="text" id="copilot-search-input-home" placeholder="Describe your situation in simple language...">
+                    <span class="mic-icon-green" id="btn-mic-home">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                        <path d="M19 10v1a7 7 0 0 1-14 0v-1"></path>
+                        <line x1="12" y1="19" x2="12" y2="22"></line>
+                      </svg>
+                    </span>
+                  </div>
+                  
+                  <div class="copilot-examples-section">
+                    <p class="examples-label">Try asking:</p>
+                    <div class="copilot-chips-row">
+                      <span class="copilot-chip" data-query="Apply for Income Certificate">Income Certificate</span>
+                      <span class="copilot-chip" data-query="Apply for Scholarship">Scholarship</span>
+                      <span class="copilot-chip" data-query="Apply for Pension">Pension</span>
+                      <span class="copilot-chip" data-query="Apply for Business Registration">Business Registration</span>
+                      <span class="copilot-chip" data-query="Apply for Ration Card">Ration Card</span>
+                    </div>
+                  </div>
+
+                  <button class="btn btn-primary-gradient ask-copilot-btn" id="btn-ask-copilot-home">
+                    <span>Ask AI Copilot</span>
+                    <span style="margin-left: 6px; font-size: 14px;">➔</span>
+                  </button>
+                </div>
+
+                <!-- AI Insight Card -->
+                <div class="ai-insight-card" id="ai-insight-card">
+                  <div class="insight-header">
+                    <span class="insight-sparkle">💡</span>
+                    <h6>AI Assistant Recommendation</h6>
+                  </div>
+                  <p class="insight-text" id="ai-insight-text">Link your PAN Card to verify eligibility for the Telangana Post-Matric Scholarship scheme.</p>
+                </div>
+
+                <!-- Dashboard Summary Card -->
+                <div class="dashboard-summary-card">
+                  <div class="summary-card-header">
+                    <span class="summary-card-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#08573c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="4" rx="1"></rect><rect x="14" y="10" width="7" height="11" rx="1"></rect><rect x="3" y="13" width="7" height="8" rx="1"></rect></svg>
+                    </span>
+                    <h5>My Government Dashboard</h5>
+                  </div>
+                  <div class="summary-stats-grid">
+                    <div class="metric-card" id="act-docs">
+                      <div class="metric-icon-wrap m-docs">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                      </div>
+                      <div class="metric-info">
+                        <span class="metric-num" id="activity-docs-count">1</span>
+                        <span class="metric-label">Verified Documents</span>
+                      </div>
+                    </div>
+                    <div class="metric-card" id="act-apps">
+                      <div class="metric-icon-wrap m-apps">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M9 14h6"></path><path d="M9 18h6"></path></svg>
+                      </div>
+                      <div class="metric-info">
+                        <span class="metric-num" id="activity-apps-count">3</span>
+                        <span class="metric-label">Active Applications</span>
+                      </div>
+                    </div>
+                    <div class="metric-card" id="act-schemes">
+                      <div class="metric-icon-wrap m-schemes">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                      </div>
+                      <div class="metric-info">
+                        <span class="metric-num" id="activity-schemes-count">1</span>
+                        <span class="metric-label">Eligible Schemes</span>
+                      </div>
+                    </div>
+                    <div class="metric-card" id="act-approved">
+                      <div class="metric-icon-wrap m-approved">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                      </div>
+                      <div class="metric-info">
+                        <span class="metric-num" id="activity-approved-count">1</span>
+                        <span class="metric-label">Approved Services</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="summary-status-footer">
+                    <span class="status-indicator-dot" id="account-status-dot"></span>
+                    <span class="status-text">Account Status: <strong class="status-green" id="account-status-text">Good Standing</strong></span>
+                  </div>
+                </div>
+
+                <!-- Digital Twin Profile Card -->
+                <div class="digital-twin-profile-card">
+                  <div class="dt-card-top">
+                    <div class="dt-profile-badge">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#08573c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                      </svg>
+                    </div>
+                    <div class="dt-card-text">
+                      <h4>Digital Twin Profile</h4>
+                      <h3 class="dt-completeness-value" id="dt-completeness-value">Profile Completion 12%</h3>
+                    </div>
+                  </div>
+                  
+                  <div class="dt-verification-list">
+                    <div class="dt-verif-item pending" id="dt-verif-aadhaar">
+                      <span class="verif-icon"></span>
+                      <span class="verif-label">Aadhaar Pending</span>
+                    </div>
+                    <div class="dt-verif-item pending" id="dt-verif-pan">
+                      <span class="verif-icon"></span>
+                      <span class="verif-label">PAN Pending</span>
+                    </div>
+                    <div class="dt-verif-item pending" id="dt-verif-voter">
+                      <span class="verif-icon"></span>
+                      <span class="verif-label">Voter ID Pending</span>
+                    </div>
+                    <div class="dt-verif-item pending" id="dt-verif-driving">
+                      <span class="verif-icon"></span>
+                      <span class="verif-label">Driving License Pending</span>
+                    </div>
+                    <div class="dt-verif-item pending" id="dt-verif-ration">
+                      <span class="verif-icon"></span>
+                      <span class="verif-label">Ration Card Pending</span>
+                    </div>
+                    <div class="dt-verif-item pending" id="dt-verif-passport">
+                      <span class="verif-icon"></span>
+                      <span class="verif-label">Passport Pending</span>
+                    </div>
+                  </div>
+
+                  <div class="dt-card-bottom">
+                    <div class="dt-progress-bar-container">
+                      <div class="dt-progress-bar-fill" id="dt-progress-bar-fill" style="width: 12%;"></div>
+                    </div>
+                    <button class="btn btn-secondary-emerald" id="btn-complete-profile-link">Complete Profile</button>
+                  </div>
+                </div>
+
+
+
+                <!-- Recommended Services Section -->
+                <div class="section-title-wrap flex-row-between" style="margin-top: 24px;">
+                  <h4>Recommended Services</h4>
+                  <span class="view-all-link" id="btn-recommendations-all">View All <span class="arrow-right">→</span></span>
+                </div>
+                <div class="recommended-grid-two-col" id="recommended-services-container">
+                  <!-- Dynamically populated by loadDashboardData -->
+                </div>
+
+                <!-- Recent Applications Section -->
+                <div class="section-title-wrap flex-row-between" style="margin-top: 24px;">
+                  <h4>Recent Applications</h4>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <span id="btn-clear-recent" style="font-size:11px;color:#DC2626;font-weight:600;cursor:pointer;display:none;">Clear All</span>
+                    <span class="view-all-link" id="btn-applications-all">View All <span class="arrow-right">→</span></span>
+                  </div>
+                </div>
+                <div class="recent-applications-list" id="recent-apps-container">
+                  <!-- Dynamically populated by app.js -->
+                </div>
+
+              </div>
+            </div>
+
+            <!-- 4. Profile Screen (Modified to Settings List) -->
+            <div id="screen-profile" class="screen">
+              <div class="screen-header">
+                <h3>Profile</h3>
+              </div>
+              <div class="screen-scroll-container">
+                <!-- Profile Card -->
+                <div style="display:flex;align-items:center;gap:14px;padding:20px 16px 16px;background:linear-gradient(135deg,#046A38 0%,#0D8B4E 100%);border-radius:0 0 20px 20px;margin-bottom:16px">
+                  <div class="profile-initials-avatar" style="width:52px;height:52px;border-radius:50%;background:#fff;color:#046A38;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;flex-shrink:0" id="profile-avatar-initial">G</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:16px;font-weight:700;color:#fff" id="profile-card-name">Guest</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.8);margin-top:2px" id="profile-card-phone">+91 XXXXXXXXXX</div>
+                  </div>
+                  <div id="btn-edit-profile-top" style="background:rgba(255,255,255,0.2);padding:6px 12px;border-radius:6px;font-size:11px;color:#fff;font-weight:600;cursor:pointer">Edit</div>
+                </div>
+
+                <!-- Security Banner Card -->
+                <div class="security-banner-card">
+                  <div class="sec-badge-icon">&#128737;</div>
+                  <div class="sec-badge-info">
+                    <h5>Your Data is Secure</h5>
+                    <p>Encrypted &amp; used only for government services</p>
+                  </div>
+                  <span class="sec-arrow-right">&rsaquo;</span>
+                </div>
+
+                <!-- Account Settings -->
+                <div class="settings-list-title">Account</div>
+                <div class="settings-list">
+                  <div class="settings-item" id="btn-personal-info">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <svg width="18" height="18" fill="none" stroke="#046A38" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      <span class="settings-item-label">Personal Information</span>
+                    </div>
+                    <span class="settings-item-arrow">&rsaquo;</span>
+                  </div>
+                  <div class="settings-item" id="btn-twin-parameters">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <svg width="18" height="18" fill="none" stroke="#046A38" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                      <span class="settings-item-label">Digital Twin Parameters</span>
+                    </div>
+                    <span class="settings-item-arrow">&rsaquo;</span>
+                  </div>
+                  <div class="settings-item" id="btn-my-applications">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <svg width="18" height="18" fill="none" stroke="#046A38" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg>
+                      <span class="settings-item-label">My Applications</span>
+                    </div>
+                    <span class="settings-item-arrow">&rsaquo;</span>
+                  </div>
+                  <div class="settings-item" id="btn-my-documents">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <svg width="18" height="18" fill="none" stroke="#046A38" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                      <span class="settings-item-label">My Documents</span>
+                    </div>
+                    <span class="settings-item-arrow">&rsaquo;</span>
+                  </div>
+                </div>
+
+                <!-- Preferences -->
+                <div class="settings-list-title">Preferences</div>
+                <div class="settings-list">
+                  <div class="settings-item" id="btn-notification-prefs">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <svg width="18" height="18" fill="none" stroke="#046A38" stroke-width="1.8" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                      <span class="settings-item-label">Notification Preferences</span>
+                    </div>
+                    <span class="settings-item-arrow">&rsaquo;</span>
+                  </div>
+                  <div class="settings-item" id="btn-language-select-row">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <svg width="18" height="18" fill="none" stroke="#046A38" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                      <span class="settings-item-label">Language</span>
+                    </div>
+                    <span class="settings-item-val" id="profile-lang-display">English &rsaquo;</span>
+                  </div>
+                  <div class="settings-item" id="btn-theme-toggle">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <svg width="18" height="18" fill="none" stroke="#046A38" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                      <span class="settings-item-label">Dark Mode</span>
+                    </div>
+                    <span id="theme-toggle-status" style="font-size:12px;color:#6B7280;font-weight:600">Off &rsaquo;</span>
+                  </div>
+                </div>
+
+                <!-- Support -->
+                <div class="settings-list-title">Support</div>
+                <div class="settings-list">
+                  <div class="settings-item" id="btn-help-support">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <svg width="18" height="18" fill="none" stroke="#046A38" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                      <span class="settings-item-label">Help & Support</span>
+                    </div>
+                    <span class="settings-item-arrow">&rsaquo;</span>
+                  </div>
+                  <div class="settings-item" id="btn-privacy-policy">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <svg width="18" height="18" fill="none" stroke="#046A38" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                      <span class="settings-item-label">Privacy Policy</span>
+                    </div>
+                    <span class="settings-item-arrow">&rsaquo;</span>
+                  </div>
+                  <div class="settings-item" id="btn-about-app">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <svg width="18" height="18" fill="none" stroke="#046A38" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                      <span class="settings-item-label">About OneCitizen</span>
+                    </div>
+                    <span class="settings-item-arrow">&rsaquo;</span>
+                  </div>
+                </div>
+
+                <!-- Sign Out Button -->
+                <button class="btn-sign-out-red" id="btn-logout-profile-new">Sign Out</button>
+
+                <!-- App Version -->
+                <div style="text-align:center;padding:20px 16px 10px;color:#9CA3AF;font-size:11px">
+                  OneCitizen v1.0.0 | Made in India &#127470;&#127475;
+                </div>
+                <div style="height:10px"></div>
+              </div>
+            </div>
+
+            <!-- 4a. Personal Information Detail Screen -->
+            <div id="screen-personal-info" class="screen">
+              <div class="screen-header">
+                <span class="back-arrow" id="personal-info-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></span>
+                <h3>Personal Information</h3>
+              </div>
+              <div class="screen-scroll-container">
+                <!-- Profile photo + name header -->
+                <div style="text-align:center;padding:20px 16px 16px;">
+                  <div id="pi-avatar" style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#046A38,#0D8B4E);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;margin-bottom:10px;">G</div>
+                  <div id="pi-fullname" style="font-size:18px;font-weight:800;color:#1E293B;">Guest</div>
+                  <div id="pi-aadhaar-badge" style="display:none;margin-top:6px;">
+                    <span style="background:#DCFCE7;color:#16A34A;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;">✓ Aadhaar Verified</span>
+                  </div>
+                </div>
+
+                <!-- Personal Details -->
+                <div style="padding:0 16px;">
+                  <div style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;margin-top:8px;">Personal Details</div>
+                  <div style="background:#fff;border-radius:12px;border:1px solid #E2E8F0;overflow:hidden;">
+                    <div class="pi-row">
+                      <span class="pi-label">Full Name</span>
+                      <span class="pi-value" id="pi-name">—</span>
+                    </div>
+                    <div class="pi-row">
+                      <span class="pi-label">Date of Birth</span>
+                      <span class="pi-value" id="pi-dob">—</span>
+                    </div>
+                    <div class="pi-row">
+                      <span class="pi-label">Gender</span>
+                      <span class="pi-value" id="pi-gender">—</span>
+                    </div>
+                    <div class="pi-row" style="border-bottom:none;">
+                      <span class="pi-label">Father's Name</span>
+                      <span class="pi-value" id="pi-father">—</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Identity Details -->
+                <div style="padding:0 16px;">
+                  <div style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;margin-top:18px;">Identity Details</div>
+                  <div style="background:#fff;border-radius:12px;border:1px solid #E2E8F0;overflow:hidden;">
+                    <div class="pi-row">
+                      <span class="pi-label">Aadhaar Number</span>
+                      <span class="pi-value" id="pi-aadhaar" style="font-family:monospace;letter-spacing:1px;">—</span>
+                    </div>
+                    <div class="pi-row">
+                      <span class="pi-label">PAN Number</span>
+                      <span class="pi-value" id="pi-pan" style="font-family:monospace;letter-spacing:1px;">—</span>
+                    </div>
+                    <div class="pi-row" style="border-bottom:none;">
+                      <span class="pi-label">Voter ID</span>
+                      <span class="pi-value" id="pi-voter">—</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Economic Details -->
+                <div style="padding:0 16px;">
+                  <div style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;margin-top:18px;">Economic Details</div>
+                  <div style="background:#fff;border-radius:12px;border:1px solid #E2E8F0;overflow:hidden;">
+                    <div class="pi-row">
+                      <span class="pi-label">Occupation</span>
+                      <span class="pi-value" id="pi-occupation">—</span>
+                    </div>
+                    <div class="pi-row">
+                      <span class="pi-label">Annual Income</span>
+                      <span class="pi-value" id="pi-income">—</span>
+                    </div>
+                    <div class="pi-row">
+                      <span class="pi-label">Caste Category</span>
+                      <span class="pi-value" id="pi-caste">—</span>
+                    </div>
+                    <div class="pi-row" style="border-bottom:none;">
+                      <span class="pi-label">Religion</span>
+                      <span class="pi-value" id="pi-religion">—</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Contact Details -->
+                <div style="padding:0 16px;">
+                  <div style="font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;margin-top:18px;">Contact Details</div>
+                  <div style="background:#fff;border-radius:12px;border:1px solid #E2E8F0;overflow:hidden;">
+                    <div class="pi-row">
+                      <span class="pi-label">Email</span>
+                      <span class="pi-value" id="pi-email">—</span>
+                    </div>
+                    <div class="pi-row">
+                      <span class="pi-label">Phone</span>
+                      <span class="pi-value" id="pi-phone">—</span>
+                    </div>
+                    <div class="pi-row" style="border-bottom:none;">
+                      <span class="pi-label">Address</span>
+                      <span class="pi-value" id="pi-address" style="max-width:180px;text-align:right;">—</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Edit Button -->
+                <div style="padding:16px;">
+                  <button class="btn btn-primary" id="pi-edit-btn" style="width:100%;font-weight:700;font-size:13px;padding:12px;background:#046A38 !important;border:none !important;border-radius:10px;">Edit Personal Information</button>
+                </div>
+
+                <div style="height:20px;"></div>
+              </div>
+            </div>
+
+            <!-- 4b. Profile Edit Screen -->
+            <div id="screen-profile-edit" class="screen">
+              <div class="screen-header">
+                <span class="back-arrow" id="profile-edit-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></span>
+                <h3>Personal Details</h3>
+              </div>
+              <div class="screen-scroll-container form-padding">
+                <form id="profile-form-new">
+
+                  <!-- Section: Personal -->
+                  <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin:4px 0 10px;">Personal Information</div>
+                  <div class="form-group">
+                    <label>Full Name (as per Aadhaar)</label>
+                    <input type="text" id="prof-name" placeholder="Full name">
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Date of Birth</label>
+                      <input type="text" id="prof-dob" placeholder="DD/MM/YYYY">
+                    </div>
+                    <div class="form-group">
+                      <label>Gender</label>
+                      <select id="prof-gender">
+                        <option value="">Select</option>
+                        <option>Male</option>
+                        <option>Female</option>
+                        <option>Other</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Marital Status</label>
+                      <select id="prof-marital">
+                        <option value="">Select</option>
+                        <option>Single</option>
+                        <option>Married</option>
+                        <option>Divorced</option>
+                        <option>Widowed</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label>Blood Group</label>
+                      <select id="prof-blood">
+                        <option value="">Select</option>
+                        <option>A+</option><option>A-</option>
+                        <option>B+</option><option>B-</option>
+                        <option>AB+</option><option>AB-</option>
+                        <option>O+</option><option>O-</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Religion</label>
+                    <select id="prof-religion">
+                      <option value="">Select</option>
+                      <option>Hindu</option>
+                      <option>Muslim</option>
+                      <option>Christian</option>
+                      <option>Sikh</option>
+                      <option>Buddhist</option>
+                      <option>Jain</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+
+                  <!-- Section: Family -->
+                  <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin:18px 0 10px;">Family Details</div>
+                  <div class="form-group">
+                    <label>Father's Name</label>
+                    <input type="text" id="prof-father" placeholder="Father's full name">
+                  </div>
+                  <div class="form-group">
+                    <label>Mother's Name</label>
+                    <input type="text" id="prof-mother" placeholder="Mother's full name">
+                  </div>
+
+                  <!-- Section: Economic -->
+                  <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin:18px 0 10px;">Economic Details</div>
+                  <div class="form-group">
+                    <label>Occupation</label>
+                    <input type="text" id="prof-occupation" placeholder="e.g. Student, Farmer, Engineer">
+                  </div>
+                  <div class="form-group">
+                    <label>Education</label>
+                    <select id="prof-education">
+                      <option value="">Select</option>
+                      <option>Below 10th</option>
+                      <option>10th Pass</option>
+                      <option>12th Pass</option>
+                      <option>Diploma</option>
+                      <option>Graduate</option>
+                      <option>Post Graduate</option>
+                      <option>Doctorate</option>
+                    </select>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Annual Income (₹)</label>
+                      <input type="number" id="prof-income" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                      <label>Caste Category</label>
+                      <select id="prof-caste">
+                        <option value="">Select</option>
+                        <option>General</option>
+                        <option>OBC</option>
+                        <option>SC</option>
+                        <option>ST</option>
+                        <option>EWS</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="checkbox-row" style="margin-top: 6px;">
+                    <input type="checkbox" id="prof-farmer">
+                    <label for="prof-farmer" style="margin-left: 5px; font-weight:600; font-size:11px;">Landholding Farmer family</label>
+                  </div>
+
+                  <!-- Section: Address -->
+                  <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin:18px 0 10px;">Address Details</div>
+                  <div class="form-group">
+                    <label>Address Line</label>
+                    <input type="text" id="prof-address" placeholder="House No, Street, Area">
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>State</label>
+                      <input type="text" id="prof-state" placeholder="Telangana">
+                    </div>
+                    <div class="form-group">
+                      <label>District</label>
+                      <input type="text" id="prof-district" placeholder="Hyderabad">
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>City / Village</label>
+                      <input type="text" id="prof-city" placeholder="City or Village">
+                    </div>
+                    <div class="form-group">
+                      <label>PIN Code</label>
+                      <input type="text" id="prof-pincode" placeholder="500001" maxlength="6">
+                    </div>
+                  </div>
+
+                  <!-- Section: Contact -->
+                  <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin:18px 0 10px;">Contact Details</div>
+                  <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" id="prof-phone" placeholder="+91 9XXXXXXXXX">
+                  </div>
+                  <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="prof-email" placeholder="email@example.com">
+                  </div>
+
+                  <button type="submit" class="btn btn-primary" style="margin-top: 18px; width: 100%;">Save Personal Details</button>
+                  <button type="button" class="btn" id="btn-logout-profile" style="margin-top: 10px; width:100%; background:#FEE2E2; color:#DC2626; border:1px solid #FCA5A5; font-weight:600; display:none;">Sign Out ID</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- 5. Document Vault Screen -->
+            <div id="screen-vault" class="screen">
+              <div class="screen-header">
+                <span class="back-arrow" id="vault-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></span>
+                <h3>Document Vault</h3>
+              </div>
+              
+              <!-- Vault Tabs -->
+              <div class="vault-tabs">
+                <div class="vault-tab-btn active" id="tab-scans">My Documents</div>
+                <div class="vault-tab-btn" id="tab-digilocker">Digilocker</div>
+              </div>
+
+              <div class="screen-scroll-container">
+                <!-- Tab Content 1: Upload Scans -->
+                <div id="vault-content-scans" class="vault-tab-content active">
+                  <!-- Section 1: Uploaded Documents -->
+                  <div style="margin-bottom:16px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                      <h4 style="font-size:13px;font-weight:800;color:#1E293B;margin:0;display:flex;align-items:center;gap:6px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#046A38" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Uploaded Documents
+                      </h4>
+                      <span id="vault-uploaded-count" style="font-size:10px;font-weight:700;color:#64748B;background:#F1F5F9;padding:2px 8px;border-radius:10px;">0</span>
+                    </div>
+                    <div id="vault-items-container" style="display:flex;flex-direction:column;gap:8px;">
+                      <!-- Populated dynamically -->
+                    </div>
+                  </div>
+
+                  <!-- Section 2: Applied Services -->
+                  <div style="margin-bottom:16px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                      <h4 style="font-size:13px;font-weight:800;color:#1E293B;margin:0;display:flex;align-items:center;gap:6px;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        Applied Services
+                      </h4>
+                      <span id="vault-applied-count" style="font-size:10px;font-weight:700;color:#64748B;background:#F1F5F9;padding:2px 8px;border-radius:10px;">0</span>
+                    </div>
+                    <div id="vault-applied-container" style="display:flex;flex-direction:column;gap:8px;">
+                      <!-- Populated dynamically -->
+                    </div>
+                  </div>
+
+                  <!-- Upload Button -->
+                  <div class="upload-btn-dotted" id="btn-trigger-upload">
+                    <span class="plus-icon">+</span> Upload New Document
+                  </div>
+                  <input type="file" id="file-uploader" accept="image/*,.pdf" style="display:none">
+                  <input type="file" id="camera-uploader" accept="image/*" capture="environment" style="display:none">
+                  <p class="upload-subtext">Supports PDF, JPG, PNG (Max 10MB)</p>
+                  
+                  <!-- Dropdown for doc type when uploading -->
+                  <div class="upload-type-selector-wrap" style="margin-top: 15px; display: none;">
+                    <label for="upload-doc-type" style="font-size: 10px; font-weight: 700; color: var(--primary-navy); text-transform: uppercase;">Doc Type to Upload:</label>
+                    <select id="upload-doc-type" class="upload-select" style="width: 100%; height: 35px; border-radius: 8px; border: 1px solid var(--border-color); padding: 0 10px; margin-top: 5px; font-size: 12px; font-weight: 600;">
+                      <option value="aadhaar">Aadhaar Card</option>
+                      <option value="pan">PAN Card</option>
+                      <option value="income">Income Certificate</option>
+                      <option value="caste">Caste Certificate</option>
+                      <option value="residence">Residence Certificate</option>
+                      <option value="ration">Ration Card</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Tab Content 2: DigiLocker Connect -->
+                <div id="vault-content-digilocker" class="vault-tab-content">
+                  <div class="digilocker-connect-card">
+                    <div class="digilocker-connect-icon">
+                      <img src="digilocker_logo.png" alt="DigiLocker" style="width: 140px; height: auto; object-fit: contain;">
+                    </div>
+                    <h4>Connect your DigiLocker</h4>
+                    <p>Link your DigiLocker account to instantly access all your government-issued documents in one place.</p>
+                    <button class="btn-digilocker-connect" id="btn-connect-digilocker">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                      </svg>
+                      Connect DigiLocker
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. Service Catalog Screen -->
+            <div id="screen-services" class="screen">
+              <div class="screen-header">
+                <span class="back-arrow" id="services-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></span>
+                <h3>Services Catalog</h3>
+              </div>
+              <div class="screen-scroll-container">
+                <!-- Search Box -->
+                <div class="search-box-wrap">
+                  <span class="search-lens-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+                  <input type="text" id="services-search" placeholder="Search services or departments...">
+                </div>
+
+                <!-- Filter Chips Row -->
+                <div class="filter-chips-row">
+                  <span class="filter-chip active" data-category="all">All</span>
+                  <span class="filter-chip" data-category="certificate">Certificates</span>
+                  <span class="filter-chip" data-category="education">Education</span>
+                  <span class="filter-chip" data-category="welfare">Welfare</span>
+                  <span class="filter-chip" data-category="more">More</span>
+                </div>
+
+                <!-- Recommended Services Title -->
+                <div class="section-title-wrap flex-row-between" style="margin-top: 15px;">
+                  <h4>Recommended Services</h4>
+                  <span class="view-all-link">View All</span>
+                </div>
+
+                <!-- Services List Container -->
+                <div class="services-list-new" id="services-items-container">
+                  <!-- Populated via app.js -->
+                </div>
+              </div>
+            </div>
+            <!-- 7. Scheme Recommendations Screen -->
+            <div id="screen-schemes" class="screen">
+              <div class="screen-header">
+                <span class="back-arrow" id="schemes-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></span>
+                <h3>Welfare Benefits</h3>
+              </div>
+              <div class="screen-scroll-container">
+                <p class="section-desc">Schemes matched to your digital twin. Updated regularly with new government programs.</p>
+                <div class="schemes-list" id="schemes-items-container">
+                  <!-- Injected via app.js -->
+                </div>
+              </div>
+            </div>
+
+            <!-- 9. Notifications Screen -->
+            <div id="screen-notifications" class="screen">
+              <div class="screen-header" style="display:flex;align-items:center;">
+                <span class="back-arrow" id="notifications-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></span>
+                <h3 style="flex:1;text-align:center;">Citizen Alerts</h3>
+                <span id="btn-clear-all-notifs" style="font-size:10px;font-weight:700;color:#FF6B6B;cursor:pointer;padding:4px 10px;border-radius:6px;background:rgba(255,107,107,0.1);white-space:nowrap;">Clear All</span>
+              </div>
+              <div class="screen-scroll-container" id="notifications-items-container">
+                <!-- Injected via app.js -->
+              </div>
+            </div>
+
+            <!-- 10. AI Copilot Screen (NEW) -->
+            <div id="screen-copilot" class="screen">
+              <div class="screen-header">
+                <span class="back-arrow" id="copilot-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></span>
+                <h3>AI Copilot</h3>
+              </div>
+              <div class="copilot-chat-container">
+                <!-- Chat history -->
+                <div class="chat-messages-wrap" id="copilot-chat-history">
+                  <div class="copilot-welcome-card" style="display: flex; align-items: center; justify-content: space-between; background: white; padding: 14px; border-radius: 16px; margin-bottom: 15px; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                    <div class="welcome-text">
+                      <h4 style="font-size: 13px; font-weight: 800; color: #1E293B; margin: 0 0 4px 0;" id="copilot-greeting-title">Hello Citizen! 👋</h4>
+                      <p style="font-size: 10px; color: #64748B; margin: 0; line-height: 1.4;">I am your government AI Copilot. Ask me about welfare benefits, certificate statuses, or service details!</p>
+                    </div>
+                    <img src="copilot_avatar.svg" alt="Robot Mascot" style="width: 54px; height: 54px; object-fit: contain; flex-shrink: 0; margin-left: 10px;">
+                  </div>
+                </div>
+
+                <!-- Suggestion chips -->
+                <div class="copilot-chips-wrap" id="copilot-suggestions">
+                  <div class="copilot-chip-card blue-chip" data-query="Which schemes am I eligible for?">
+                    <span class="chip-card-icon">🛡️</span>
+                    <span class="chip-card-text">Which schemes am I eligible for?</span>
+                  </div>
+                  <div class="copilot-chip-card green-chip" data-query="How to apply for Income Certificate?">
+                    <span class="chip-card-icon">📄</span>
+                    <span class="chip-card-text">How to apply for Income Certificate?</span>
+                  </div>
+                  <div class="copilot-chip-card orange-chip" data-query="Track my application status">
+                    <span class="chip-card-icon">⏳</span>
+                    <span class="chip-card-text">Track my application status</span>
+                  </div>
+                  <div class="copilot-chip-card teal-chip" data-query="What government services can I apply for?">
+                    <span class="chip-card-icon">🏛️</span>
+                    <span class="chip-card-text">Available government services</span>
+                  </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-input-bar">
+                  <input type="text" id="copilot-chat-input" placeholder="Ask anything...">
+                  <button class="chat-mic-btn" id="btn-copilot-mic" title="Voice input" style="background:none;border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#94A3B8;transition:all 0.2s;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                  </button>
+                  <button class="chat-send-btn" id="btn-copilot-send">
+                    ➔
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 11. Digital Twin Info Screen (NEW) -->
+            <div id="screen-digital-twin" class="screen">
+              <div class="screen-header">
+                <span class="back-arrow" id="digital-twin-back"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></span>
+                <h3>Digital Twin</h3>
+                <div style="width:32px;"></div>
+              </div>
+              <div class="screen-scroll-container">
+                <div class="twin-profile-summary-card">
+                  <div class="summary-avatar-wrap">
+                    <div id="twin-avatar-initial" style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#046A38,#0D8B4E);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;line-height:1;flex-shrink:0;">C</div>
+                  </div>
+                  <h4 class="summary-name" id="twin-summary-name">—</h4>
+                  <p class="summary-location" id="twin-summary-location">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px; vertical-align: middle;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Not set
+                  </p>
+                  
+                  <div class="summary-badges-row">
+                    <span class="summary-badge" id="twin-badge-occ">—</span>
+                    <span class="summary-badge" id="twin-badge-age">—</span>
+                    <span class="summary-badge" id="twin-badge-gender">—</span>
+                  </div>
+
+                  <button class="btn-twin-action-edit" id="btn-digital-twin-edit">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    <span>Edit Profile Details</span>
+                  </button>
+
+                  <div class="twin-completeness-banner">
+                    <div class="tc-left">
+                      <h6>Profile Completeness</h6>
+                      <div class="tc-slider-bg">
+                        <div class="tc-slider-fill" id="twin-slider-fill" style="width: 0%;"></div>
+                      </div>
+                      <p class="tc-slider-subtext" id="twin-slider-text">Complete your profile to get started</p>
+                    </div>
+                    <div class="tc-right">
+                      <div class="tc-radial-pct" id="twin-radial-pct">0%</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="twin-stats-grid">
+                  <div class="twin-stat-card" id="twin-stat-docs">
+                    <div class="stat-icon-wrap" style="background:rgba(4,106,56,0.08);">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#046A38" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                    </div>
+                    <div style="flex:1;"><p>Documents</p></div>
+                    <h5 id="twin-val-docs">0</h5>
+                  </div>
+                  <div class="twin-stat-card" id="twin-stat-schemes">
+                    <div class="stat-icon-wrap" style="background:rgba(124,58,237,0.08);">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    <div style="flex:1;"><p>Eligible Schemes</p></div>
+                    <h5 id="twin-val-schemes">0</h5>
+                  </div>
+                  <div class="twin-stat-card" id="twin-stat-apps">
+                    <div class="stat-icon-wrap" style="background:rgba(234,88,12,0.08);">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div style="flex:1;"><p>Pending</p></div>
+                    <h5 id="twin-val-apps">0</h5>
+                  </div>
+                  <div class="twin-stat-card" id="twin-stat-approvals">
+                    <div class="stat-icon-wrap" style="background:rgba(22,163,74,0.08);">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div style="flex:1;"><p>Approved</p></div>
+                    <h5 id="twin-val-approvals">0</h5>
+                  </div>
+                </div>
+
+                <!-- Tabs: Overview / History -->
+                <div class="vault-tabs" style="margin-top:16px;">
+                  <div class="vault-tab-btn active" id="tab-twin-overview">Overview</div>
+                  <div class="vault-tab-btn" id="tab-twin-history">History</div>
+                </div>
+
+                <!-- Overview Content -->
+                <div id="twin-overview-content" style="margin-top:12px;">
+                  <div class="section-title-wrap flex-row-between">
+                    <h4>Eligible Schemes</h4>
+                  </div>
+                  <div id="twin-eligible-list" style="margin-bottom:16px;">
+                    <div style="text-align:center;padding:20px;color:#94A3B8;font-size:12px;">Upload Aadhaar to check eligibility</div>
+                  </div>
+                </div>
+
+                <!-- History Content -->
+                <div id="twin-history-content" style="display:none;margin-top:12px;">
+                  <div id="twin-history-list">
+                    <div style="text-align:center;padding:30px 10px;color:#94A3B8;">
+                      <svg width="40" height="40" fill="none" stroke="#CBD5E1" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 10px;display:block"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      <p style="font-size:13px;font-weight:600;color:#64748B;">Loading history...</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom Navigation Bar (Hidden on login & splash) -->
+          <div class="phone-navbar" id="bottom-nav">
+            <div class="nav-item active" data-target="screen-dashboard">
+              <span class="nav-icon" style="display: inline-flex; align-items: center; justify-content: center; height: 20px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+              </span>
+              <span>Home</span>
+            </div>
+            <div class="nav-item" data-target="screen-vault">
+              <span class="nav-icon" style="display: inline-flex; align-items: center; justify-content: center; height: 20px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              </span>
+              <span>Vault</span>
+            </div>
+            <div class="nav-item" data-target="screen-services">
+              <span class="nav-icon" style="display: inline-flex; align-items: center; justify-content: center; height: 20px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              </span>
+              <span>Services</span>
+            </div>
+
+            <div class="nav-item" data-target="screen-profile">
+              <span class="nav-icon" style="display: inline-flex; align-items: center; justify-content: center; height: 20px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              </span>
+              <span>Profile</span>
+            </div>
+          </div>
+          
+          <!-- Floating Help Button -->
+          <div class="floating-help-btn" id="btn-floating-help">
+            <span>💬 Help</span>
+          </div>
+          
+          <!-- Phone-level Toast Notification -->
+          <div id="phone-toast" class="phone-toast"></div>
+
+          <!-- Bottom Sheet Overlay for Copilot details, OCR scans, and Readiness checks -->
+          <div class="overlay-sheet" id="bottom-sheet-overlay">
+            <div class="sheet-content">
+              <div class="sheet-header">
+                <span class="sheet-close" id="btn-close-sheet">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </span>
+                <h3 id="sheet-title">Analysis details</h3>
+              </div>
+              <div class="sheet-body" id="sheet-body-content">
+                <!-- Injected via app.js -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet Javascript -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js?v=20"></script>
+
+  <!-- Email Auth Handler (Firebase) -->
+  <script>
+  window._isSignupMode = false;
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Firebase if not already done
+    if (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.startsWith('PASTE')) {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(FIREBASE_CONFIG);
+      }
+    }
+
+    var btn = document.getElementById('btn-email-login');
+    if (!btn) return;
+
+    btn.addEventListener('click', async function() {
+      var email = document.getElementById('login-email').value.trim();
+      var password = document.getElementById('login-password').value;
+      var errEl = document.getElementById('login-error-msg');
+      var btnText = document.getElementById('email-login-btn-text');
+      var spinner = btn.querySelector('.spinner-inline');
+
+      errEl.style.display = 'none';
+
+      if (!email || !password) {
+        errEl.textContent = 'Please enter email and password.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      if (window._isSignupMode) {
+        var confirmPw = document.getElementById('login-confirm-password').value;
+        if (password !== confirmPw) {
+          errEl.textContent = 'Passwords do not match.';
+          errEl.style.display = 'block';
+          return;
+        }
+        if (password.length < 6) {
+          errEl.textContent = 'Password must be at least 6 characters.';
+          errEl.style.display = 'block';
+          return;
+        }
+      }
+
+      btn.disabled = true;
+      if (btnText) btnText.textContent = window._isSignupMode ? 'Creating...' : 'Logging in...';
+      if (spinner) spinner.style.display = 'inline-block';
+
+      try {
+        // Step 1: Firebase Auth — signup or login
+        var userCredential;
+        if (window._isSignupMode) {
+          userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        } else {
+          userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+        }
+
+        var firebaseUser = userCredential.user;
+        var idToken = await firebaseUser.getIdToken();
+
+        // Step 2: Send Firebase ID token to backend for session JWT
+        var res = await fetch('/api/auth/firebase-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken: idToken, email: email })
+        });
+        var data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Backend login failed');
+
+        // Step 3: Store token and proceed
+        localStorage.setItem('citizen_token', data.token);
+        authToken = data.token;
+        currentRole = data.user.role;
+
+        if (!localStorage.getItem('onboarding_completed')) {
+          switchScreen('screen-onboarding');
+        } else {
+          switchScreen('screen-dashboard');
+        }
+        loadDashboardData();
+        if (typeof loadAdminDashboard === 'function') loadAdminDashboard();
+
+      } catch (err) {
+        // Clean Firebase error messages
+        var msg = err.message || 'Authentication failed.';
+        if (msg.includes('auth/email-already-in-use')) msg = 'This email is already registered. Please login instead.';
+        else if (msg.includes('auth/wrong-password') || msg.includes('auth/invalid-credential')) msg = 'Incorrect password. Please try again.';
+        else if (msg.includes('auth/user-not-found')) msg = 'No account found with this email. Please create an account.';
+        else if (msg.includes('auth/weak-password')) msg = 'Password is too weak. Use at least 6 characters.';
+        else if (msg.includes('auth/invalid-email')) msg = 'Please enter a valid email address.';
+        else if (msg.includes('auth/too-many-requests')) msg = 'Too many attempts. Please try again later.';
+        errEl.textContent = msg;
+        errEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        if (btnText) btnText.textContent = window._isSignupMode ? 'Create Account' : 'Login';
+        if (spinner) spinner.style.display = 'none';
+      }
+    });
+
+    // Allow Enter key to submit
+    ['login-email', 'login-password', 'login-confirm-password'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') btn.click();
+      });
+    });
+  });
+  </script>
+
+</body>
+</html>

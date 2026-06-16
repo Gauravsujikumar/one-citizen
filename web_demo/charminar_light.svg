@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Base structure -->
+  <path d="M 20 85 L 80 85 L 80 88 L 20 88 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Central block -->
+  <path d="M 28 45 L 72 45 L 72 85 L 28 85 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Central main archway -->
+  <path d="M 40 85 V 64 C 40 54 60 54 60 64 V 85" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Second story band -->
+  <path d="M 28 58 H 72" fill="none" stroke="currentColor" stroke-width="1.2"/>
+  <path d="M 28 48 H 72" fill="none" stroke="currentColor" stroke-width="1.2"/>
+  <!-- Small decorative arches on second story -->
+  <path d="M 33 58 V 51 C 33 49 37 49 37 51 V 58 M 43 58 V 51 C 43 49 47 49 47 51 V 58 M 53 58 V 51 C 53 49 57 49 57 51 V 58 M 63 58 V 51 C 63 49 67 49 67 51 V 58" fill="none" stroke="currentColor" stroke-width="1"/>
+  <!-- Left Pillar -->
+  <path d="M 20 22 H 28 V 85 H 20 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Right Pillar -->
+  <path d="M 72 22 H 80 V 85 H 72 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Left Dome -->
+  <path d="M 18 22 C 18 10 30 10 30 22 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Right Dome -->
+  <path d="M 70 22 C 70 10 82 10 82 22 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Dome pinnacles -->
+  <line x1="24" y1="12" x2="24" y2="7" stroke="currentColor" stroke-width="1.2"/>
+  <line x1="76" y1="12" x2="76" y2="7" stroke="currentColor" stroke-width="1.2"/>
+  <!-- Center top small minaret/dome -->
+  <path d="M 46 45 C 46 38 54 38 54 45 Z" fill="none" stroke="currentColor" stroke-width="1.2"/>
+  <line x1="50" y1="39" x2="50" y2="35" stroke="currentColor" stroke-width="1"/>
+</svg>
