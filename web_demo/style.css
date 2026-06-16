@@ -1,12 +1,26 @@
 /* style.css - Premium GovTech Styling for OneCitizen AI Web Demo */
 
-/* Hide browser-default password reveal icons (ensures consistent custom eye toggle) */
+/* Hide browser-default password reveal icons on ALL browsers and mobile */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear,
 input[type="password"]::-webkit-credentials-auto-fill-button,
-input[type="password"]::-webkit-textfield-decoration-container {
+input[type="password"]::-webkit-textfield-decoration-container,
+input[type="password"]::-webkit-contacts-auto-fill-button,
+input[type="password"]::-internal-input-suggested {
   display: none !important;
-  -webkit-appearance: none;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  right: 50px !important;
+}
+
+/* Custom eye toggle styling */
+.pw-eye-toggle {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  padding: 4px;
 }
 
 :root {
