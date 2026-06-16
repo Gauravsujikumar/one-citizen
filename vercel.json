@@ -8,11 +8,17 @@
     {
       "src": "web_demo/**",
       "use": "@vercel/static"
+    },
+    {
+      "src": "officer_portal/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/backend/server.js" },
     { "src": "/uploads/(.*)", "dest": "/backend/server.js" },
+    { "src": "/officer/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|webp))", "dest": "/officer_portal/$1" },
+    { "src": "/officer(.*)", "dest": "/officer_portal/index.html" },
     { "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf))", "dest": "/web_demo/$1" },
     { "src": "/(.*)", "dest": "/web_demo/index.html" }
   ]
