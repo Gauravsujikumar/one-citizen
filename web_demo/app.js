@@ -932,7 +932,7 @@ function setupAuthHandlers() {
       } else {
         switchScreen('screen-dashboard');
       }
-      loadAdminDashboard();
+      if (currentRole === 'admin') loadAdminDashboard();
     } catch (err) {
       alert(`Login error: ${err.message}`);
     }
@@ -1001,7 +1001,7 @@ function setupAuthHandlers() {
       } else {
         switchScreen('screen-dashboard');
       }
-      loadAdminDashboard();
+      if (currentRole === 'admin') loadAdminDashboard();
     } catch (err) {
       alert(`Login failed: ${err.message}`);
       if (btn) {
@@ -1079,7 +1079,7 @@ function setupAuthHandlers() {
         } else {
           switchScreen('screen-dashboard');
         }
-        loadAdminDashboard();
+        if (currentRole === 'admin') loadAdminDashboard();
       } else {
         const result = await confirmationResult.confirm(entered);
         await onFirebaseVerified(result.user, mobile);
@@ -1125,7 +1125,7 @@ async function checkTokenAndLoad() {
   try {
     const profile = await apiCall('/auth/profile');
     switchScreen('screen-dashboard');
-    loadAdminDashboard();
+    if (currentRole === 'admin') loadAdminDashboard();
   } catch (e) {
     // Session expired
     authToken = null;
@@ -1276,7 +1276,7 @@ function showGoogleSignupSheet(email) {
       currentRole = data.user.role;
       closeBottomSheet();
       if (!localStorage.getItem('onboarding_completed')) { switchScreen('screen-onboarding'); } else { switchScreen('screen-dashboard'); }
-      loadAdminDashboard();
+      if (currentRole === 'admin') loadAdminDashboard();
       showToast('Account created successfully!');
     } catch (err) {
       showToast(err.message);
@@ -1336,7 +1336,7 @@ function showGoogleLoginSheet(email) {
       currentRole = data.user.role;
       closeBottomSheet();
       if (!localStorage.getItem('onboarding_completed')) { switchScreen('screen-onboarding'); } else { switchScreen('screen-dashboard'); }
-      loadAdminDashboard();
+      if (currentRole === 'admin') loadAdminDashboard();
       showToast('Welcome back!');
     } catch (err) {
       showToast(err.message);
@@ -1843,8 +1843,9 @@ async function loadDashboardData() {
         }
       });
     }
-    // 3. Eligible schemes = 1 notification
-    if (recommendations && recommendations.length > 0 && recommendations.filter(r => r.is_eligible).length > 0) notifCount++;
+    // 3. Eligible schemes = 1 notification (only if user has at least 1 verified document)
+    const hasVerifiedDoc = docs && docs.some(d => d.is_verified === 1);
+    if (hasVerifiedDoc && recommendations && recommendations.length > 0 && recommendations.filter(r => r.is_eligible).length > 0) notifCount++;
     // 4. Latest verified doc = 1 notification
     if (docs && docs.filter(d => d.is_verified === 1).length > 0) notifCount++;
     // Compare with last-seen count to show badge only for NEW notifications
@@ -4436,8 +4437,9 @@ async function loadNotifications() {
     });
   }
 
-  // 3. Eligible schemes — use most recently added scheme's date
-  if (recommendations.length > 0) {
+  // 3. Eligible schemes — only show if user has at least 1 verified document
+  const hasAnyVerifiedDoc = docs && docs.some(d => d.is_verified === 1);
+  if (hasAnyVerifiedDoc && recommendations.length > 0) {
     const eligible = recommendations.filter(r => r.is_eligible);
     if (eligible.length > 0) {
       // Find the newest scheme by created_at to show dynamic time
