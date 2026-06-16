@@ -2170,8 +2170,14 @@ async function loadVaultItems() {
   const uploadedCountEl = document.getElementById('vault-uploaded-count');
   const appliedCountEl = document.getElementById('vault-applied-count');
 
-  container.innerHTML = '<div class="spinner-center"><span class="spinner"></span></div>';
-  if (appliedContainer) appliedContainer.innerHTML = '<div class="spinner-center"><span class="spinner"></span></div>';
+  // Show skeleton loading placeholders instantly (feels faster than a spinner)
+  const skeletonCard = `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:white;border-radius:12px;border:1px solid #F1F5F9;">
+    <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(90deg,#F1F5F9 25%,#E2E8F0 50%,#F1F5F9 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;flex-shrink:0;"></div>
+    <div style="flex:1;"><div style="width:70%;height:12px;border-radius:4px;background:linear-gradient(90deg,#F1F5F9 25%,#E2E8F0 50%,#F1F5F9 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;margin-bottom:6px;"></div>
+    <div style="width:40%;height:8px;border-radius:4px;background:linear-gradient(90deg,#F1F5F9 25%,#E2E8F0 50%,#F1F5F9 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;"></div></div>
+    <div style="width:50px;height:20px;border-radius:8px;background:linear-gradient(90deg,#F1F5F9 25%,#E2E8F0 50%,#F1F5F9 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;"></div></div>`;
+  container.innerHTML = skeletonCard + skeletonCard + skeletonCard;
+  if (appliedContainer) appliedContainer.innerHTML = skeletonCard + skeletonCard;
 
   // Document type icons (small SVGs)
   const docIcons = {

@@ -23,6 +23,12 @@ input[type="password"]::-internal-input-suggested {
   padding: 4px;
 }
 
+/* Skeleton loading shimmer animation */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 :root {
   --primary-navy: #0B4F30; /* Rich Forest Green */
   --secondary-blue: #0D6E45; /* Emerald Green */
