@@ -4,6 +4,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const db = require('../db');
 const firestore = require('../firestore');
 const { authenticateToken } = require('./auth');
@@ -24,7 +25,11 @@ function getDocTypeLabel(type) {
 }
 
 // Setup File Upload Storage
-const storage = multer.diskStorage({
+// Vercel serverless has no persistent disk — use memoryStorage (file stays as buffer in RAM)
+// Locally — use diskStorage for development convenience
+const isVercel = !!process.env.VERCEL;
+
+const diskStorageConfig = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.resolve(__dirname, '../uploads');
     if (!fs.existsSync(uploadDir)) {
@@ -39,7 +44,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
-  storage: storage,
+  storage: isVercel ? multer.memoryStorage() : diskStorageConfig,
   fileFilter: (req, file, cb) => {
     const allowed = ['.jpg', '.jpeg', '.png', '.pdf'];
     const ext = path.extname(file.originalname).toLowerCase();
@@ -52,6 +57,22 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
 
+// Helper: get a temporary file path for OCR processing (writes buffer to /tmp on Vercel)
+function getFilePath(reqFile) {
+  if (reqFile.path) return reqFile.path; // diskStorage — already on disk
+  // memoryStorage — write buffer to /tmp
+  const tmpPath = path.join(os.tmpdir(), reqFile.fieldname + '-' + Date.now() + path.extname(reqFile.originalname));
+  fs.writeFileSync(tmpPath, reqFile.buffer);
+  return tmpPath;
+}
+
+// Helper: get the stored filename reference
+function getFileName(reqFile) {
+  if (reqFile.filename) return reqFile.filename; // diskStorage
+  // memoryStorage — generate a virtual filename
+  return reqFile.fieldname + '-' + Date.now() + '-' + Math.round(Math.random() * 1e9) + path.extname(reqFile.originalname);
+}
+
 // Upload Document and Extract Data via OCR
 router.post('/upload', authenticateToken, upload.single('document'), async (req, res) => {
   if (!req.file) {
@@ -63,7 +84,8 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
     return res.status(400).json({ error: 'document_type is required (e.g. aadhaar, pan, income, etc.)' });
   }
 
-  const filePath = req.file.path;
+  const filePath = getFilePath(req.file);
+  const storedFileName = getFileName(req.file);
   const documentId = 'doc_' + Math.random().toString(36).substr(2, 9);
 
   try {
@@ -99,7 +121,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
       }
 
       await firestore.addDocument(req.user.id, documentId, {
-        user_id: req.user.id, document_type, file_path: req.file.filename,
+        user_id: req.user.id, document_type, file_path: storedFileName,
         extracted_name: '', extracted_dob: '', extracted_id_number: '',
         is_verified: 1, validation_status: JSON.stringify({ status: 'verified', issues: [] }), expires_at: 'Permanent'
       });
@@ -111,7 +133,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
           id: documentId,
           document_type,
           file_name: req.file.originalname,
-          file_path: req.file.filename,
+          file_path: storedFileName,
           extracted_data: {},
           validation: { status: 'verified', issues: [] }
         }
@@ -130,7 +152,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
       }
 
       await firestore.addDocument(req.user.id, documentId, {
-        user_id: req.user.id, document_type, file_path: req.file.filename,
+        user_id: req.user.id, document_type, file_path: storedFileName,
         extracted_name: '', extracted_dob: '', extracted_id_number: '',
         is_verified: 1, validation_status: JSON.stringify({ status: 'verified', issues: [] }), expires_at: 'Permanent'
       });
@@ -142,7 +164,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
           id: documentId,
           document_type,
           file_name: req.file.originalname,
-          file_path: req.file.filename,
+          file_path: storedFileName,
           extracted_data: {},
           validation: { status: 'verified', issues: [] }
         }
@@ -173,7 +195,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
       const idNum = (extractedData.id_number || '').trim();
       // User selected Aadhaar but uploaded PAN
       if (document_type === 'aadhaar' && /^[A-Z]{5}[0-9]{4}[A-Z]$/.test(idNum)) {
-        try { fs.unlinkSync(req.file.path); } catch (e) {}
+        try { fs.unlinkSync(filePath); } catch (e) {}
         return res.status(400).json({
           error: 'Wrong document type',
           message: `You selected "Aadhaar Card" but this appears to be a PAN Card (ID: ${idNum}). Please upload the correct document.`
@@ -181,7 +203,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
       }
       // User selected PAN but uploaded Aadhaar
       if (document_type === 'pan' && /^\d{4}\s?\d{4}\s?\d{4}$/.test(idNum.replace(/\s/g, ''))) {
-        try { fs.unlinkSync(req.file.path); } catch (e) {}
+        try { fs.unlinkSync(filePath); } catch (e) {}
         return res.status(400).json({
           error: 'Wrong document type',
           message: `You selected "PAN Card" but this appears to be an Aadhaar Card (ID: ${idNum}). Please upload the correct document.`
@@ -208,7 +230,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
       if (isKnownSelected && isKnownDetected && normDetected !== normSelected) {
         const detectedLabel = getDocTypeLabel(detected) || detected.toUpperCase();
         const selectedLabel = getDocTypeLabel(selected) || selected.toUpperCase();
-        try { fs.unlinkSync(req.file.path); } catch (e) {}
+        try { fs.unlinkSync(filePath); } catch (e) {}
         return res.status(400).json({
           error: 'Document type mismatch',
           message: `You selected "${selectedLabel}" but the uploaded document is a "${detectedLabel}". Please upload the correct document type.`,
@@ -263,7 +285,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
       const isSimilarEnough = similarity >= 0.7;
       
       if (!exactMatch && !substringMatch && !wordsMatch && !fuzzyWordsMatch && !isSimilarEnough) {
-        try { fs.unlinkSync(req.file.path); } catch (e) {}
+        try { fs.unlinkSync(filePath); } catch (e) {}
         return res.status(400).json({
           error: 'Document data mismatch',
           message: `Upload rejected — the Name on this document does not match your profile. This document may belong to someone else.`,
@@ -334,7 +356,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
     if (mismatchFields.length > 0) {
       // Return error - don't allow upload with mismatched data
       // Clean up the uploaded file
-      try { fs.unlinkSync(req.file.path); } catch (e) {}
+      try { fs.unlinkSync(filePath); } catch (e) {}
       const fieldNames = mismatchFields.map(m => m.field).join(' and ');
       return res.status(400).json({
         error: 'Document data mismatch',
@@ -380,7 +402,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
     }
 
     await firestore.addDocument(req.user.id, documentId, {
-      user_id: req.user.id, document_type, file_path: req.file.filename,
+      user_id: req.user.id, document_type, file_path: storedFileName,
       extracted_name: extractedData.name || '', extracted_dob: extractedData.dob || '',
       extracted_id_number: extractedData.id_number || '',
       is_verified: isVerified, validation_status: JSON.stringify(validationReport),
@@ -414,7 +436,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
         id: documentId,
         document_type,
         file_name: req.file.originalname,
-        file_path: req.file.filename,
+        file_path: storedFileName,
         extracted_data: extractedData,
         validation: validationReport
       }
