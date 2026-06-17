@@ -176,11 +176,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setupAccessibility();
   setupOnboarding();
   setupGoogleLogin();
-  requestUserLocation();
 
   // Run Startup Transition Sequence:
   // Phase 1 (OneCitizen logo) is active by default.
-  // Wait 1500ms, then transition to Phase 2 (Government of Telangana emblem)
+  // Wait 1000ms, then transition to Phase 2 (Government of Telangana emblem)
   setTimeout(() => {
     const p1 = document.getElementById('splash-phase1');
     const p2 = document.getElementById('splash-phase2');
@@ -189,15 +188,17 @@ document.addEventListener('DOMContentLoaded', () => {
       p2.classList.add('active');
     }
 
-    // Wait another 1800ms, then transition to the Login Screen (or check token and load dashboard)
+    // Wait another 800ms, then transition to the Login Screen (or check token and load dashboard)
     setTimeout(() => {
+      // Defer user location request until after splash screen completes
+      requestUserLocation();
       if (authToken) {
         checkTokenAndLoad();
       } else {
         switchScreen('screen-login');
       }
-    }, 1800);
-  }, 1500);
+    }, 800);
+  }, 1000);
 
   // Floating Help Button click handler
   const btnHelp = document.getElementById('btn-floating-help');
@@ -214,6 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function updateClock() {
   const clock = document.getElementById('status-clock');
+  if (!clock) return;
   const now = new Date();
   let hrs = now.getHours().toString().padStart(2, '0');
   let mins = now.getMinutes().toString().padStart(2, '0');
@@ -242,20 +244,22 @@ function switchScreen(screenId) {
 
   // Handle bottom navigation bar visibility
   const nav = document.getElementById('bottom-nav');
-  if (screenId === 'screen-splash' || screenId === 'screen-login' || screenId === 'screen-onboarding') {
-    nav.style.display = 'none';
-  } else {
-    nav.style.display = 'flex';
-    // Match active nav icon
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.classList.remove('active');
-      const target = item.getAttribute('data-target');
-      if (target === screenId) {
-        item.classList.add('active');
-      } else if (target === 'screen-profile' && (screenId === 'screen-digital-twin' || screenId === 'screen-profile-edit' || screenId === 'screen-copilot')) {
-        item.classList.add('active');
-      }
-    });
+  if (nav) {
+    if (screenId === 'screen-splash' || screenId === 'screen-login' || screenId === 'screen-onboarding') {
+      nav.style.display = 'none';
+    } else {
+      nav.style.display = 'flex';
+      // Match active nav icon
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        const target = item.getAttribute('data-target');
+        if (target === screenId) {
+          item.classList.add('active');
+        } else if (target === 'screen-profile' && (screenId === 'screen-digital-twin' || screenId === 'screen-profile-edit' || screenId === 'screen-copilot')) {
+          item.classList.add('active');
+        }
+      });
+    }
   }
 
   // Trigger contextual actions based on screen loaded
@@ -481,7 +485,9 @@ function setupNavigation() {
   if (clearAllBtn) {
     clearAllBtn.addEventListener('click', () => {
       const container = document.getElementById('notifications-items-container');
-      container.innerHTML = '<div style="text-align:center;padding:50px 20px;color:#94A3B8;"><div style="font-size:14px;font-weight:600;">No Notifications</div></div>';
+      if (container) {
+        container.innerHTML = '<div style="text-align:center;padding:50px 20px;color:#94A3B8;"><div style="font-size:14px;font-weight:600;">No Notifications</div></div>';
+      }
       localStorage.setItem('oc_notif_seen_count', '9999');
       updateBellBadge(0);
       showToast('All notifications cleared', 'success');
@@ -489,11 +495,11 @@ function setupNavigation() {
   }
 
   // Back arrow clicks
-  document.getElementById('vault-back').addEventListener('click', () => switchScreen('screen-dashboard'));
-  document.getElementById('services-back').addEventListener('click', () => switchScreen('screen-dashboard'));
-  document.getElementById('schemes-back').addEventListener('click', () => switchScreen('screen-dashboard'));
+  document.getElementById('vault-back')?.addEventListener('click', () => switchScreen('screen-dashboard'));
+  document.getElementById('services-back')?.addEventListener('click', () => switchScreen('screen-dashboard'));
+  document.getElementById('schemes-back')?.addEventListener('click', () => switchScreen('screen-dashboard'));
   // locator-back removed (MeeSeva removed)
-  document.getElementById('notifications-back').addEventListener('click', () => switchScreen('screen-dashboard'));
+  document.getElementById('notifications-back')?.addEventListener('click', () => switchScreen('screen-dashboard'));
   
   const copilotBack = document.getElementById('copilot-back');
   if (copilotBack) copilotBack.addEventListener('click', () => switchScreen('screen-dashboard'));
@@ -600,7 +606,7 @@ function setupNavigation() {
         if (lbl) lbl.textContent = langs.find(function(l){return l.code===lang}).label + ' \u203A';
         closeBottomSheet();
         showToast('Language changed to ' + langs.find(function(l){return l.code===lang}).label);
-        applyTranslations();
+        switchLanguage(lang);
       });
     });
   });
@@ -669,7 +675,7 @@ function setupNavigation() {
   });
 
   // Close Bottom Sheet
-  document.getElementById('btn-close-sheet').addEventListener('click', closeBottomSheet);
+  document.getElementById('btn-close-sheet')?.addEventListener('click', closeBottomSheet);
 
   // Language Dropdown change
   document.getElementById('lang-selector')?.addEventListener('change', (e) => {
@@ -678,14 +684,6 @@ function setupNavigation() {
 
   // Login Language Footer Links click
   document.querySelectorAll('.login-lang-footer span').forEach(span => {
-    span.addEventListener('click', () => {
-      const lang = span.getAttribute('data-lang');
-      switchLanguage(lang);
-    });
-  });
-
-  // Login Language Top Bar click (tiny switcher at top of login screen)
-  document.querySelectorAll('.login-lang-top-glass span[data-lang]').forEach(span => {
     span.addEventListener('click', () => {
       const lang = span.getAttribute('data-lang');
       if (lang) switchLanguage(lang);
@@ -733,6 +731,14 @@ function setupNavigation() {
     localStorage.removeItem('citizen_token');
     localStorage.removeItem('onboarding_completed'); // Reset onboarding flag so they can test it again
     
+    // Clear status polling
+    stopStatusPolling();
+    if (_renewalReminderTimer) {
+      clearInterval(_renewalReminderTimer);
+      _renewalReminderTimer = null;
+    }
+    _lastAppStatuses = {};
+
     // Clear all login form fields
     const fieldsToClear = ['login-email', 'login-password', 'login-confirm-password', 'login-mobile'];
     fieldsToClear.forEach(id => {
@@ -773,15 +779,31 @@ async function apiCall(endpoint, method = 'GET', body = null, isMultipart = fals
     options.body = isMultipart ? body : JSON.stringify(body);
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, options);
+  let response;
+  try {
+    response = await fetch(`${API_URL}${endpoint}`, options);
+  } catch (netErr) {
+    throw new Error('Connection failed. Please check if the server is running.');
+  }
+
   if (!response.ok) {
-    const err = await response.json();
+    let err;
+    try {
+      err = await response.json();
+    } catch (e) {
+      throw new Error(`Server error (${response.status}). Please try again later.`);
+    }
     const error = new Error(err.error || 'Request failed');
     if (err.mismatches) error.mismatches = err.mismatches;
     if (err.typeMismatch) error.typeMismatch = err.typeMismatch;
     throw error;
   }
-  return response.json();
+
+  try {
+    return await response.json();
+  } catch (e) {
+    throw new Error('Failed to parse response from server.');
+  }
 }
 
 // 5. Auth Handlers  Firebase Phone Auth
@@ -955,14 +977,30 @@ function setupAuthHandlers() {
     var otpVerify = document.getElementById('otp-step-verify');
     if (otpMobile) otpMobile.style.display = 'block';
     if (otpVerify) otpVerify.style.display = 'none';
+
+    // Reset signup mode and form fields
+    window._isSignupMode = false;
+    const confirmPass = document.getElementById('confirm-password-group');
+    if (confirmPass) confirmPass.style.display = 'none';
+    const loginBtnText = document.getElementById('email-login-btn-text');
+    if (loginBtnText) loginBtnText.textContent = 'Login';
   });
 
   // -- Event: Create Account (same flow as login) -----------
   document.getElementById('btn-show-signup')?.addEventListener('click', () => {
     document.getElementById('login-entry-buttons').style.display = 'none';
     const panel = document.getElementById('login-options-panel');
-    panel.style.display = 'block';
-    panel.style.animation = 'fadeInUp 0.3s ease';
+    if (panel) {
+      panel.style.display = 'block';
+      panel.style.animation = 'fadeInUp 0.3s ease';
+    }
+
+    // Set signup mode and form fields
+    window._isSignupMode = true;
+    const confirmPass = document.getElementById('confirm-password-group');
+    if (confirmPass) confirmPass.style.display = 'block';
+    const loginBtnText = document.getElementById('email-login-btn-text');
+    if (loginBtnText) loginBtnText.textContent = 'Create Account';
   });
 
   // -- Event: Send OTP button -----------------------------
@@ -1349,43 +1387,50 @@ function showGoogleLoginSheet(email) {
 // 6. Citizen Dashboard Loader
 async function loadDashboardData() {
   try {
-    const profile = await apiCall('/auth/profile');
-    const docs = await apiCall('/documents');
+    // Parallelize core data fetching using Promise.allSettled
+    const results = await Promise.allSettled([
+      apiCall('/auth/profile'),
+      apiCall('/documents'),
+      apiCall('/services/user-applications'),
+      apiCall('/services/recommendations/list'),
+      (allServices.length === 0 ? apiCall('/services') : Promise.resolve(allServices))
+    ]);
 
-    // Fetch user applications & recommendations
-    let applications = [];
-    try {
-      applications = await apiCall('/services/user-applications');
-      // Deduplicate: keep only the latest application per service_id
-      // If both rejected and non-rejected exist, prefer the non-rejected one
-      var appMap = {};
-      applications.forEach(function(a) {
-        var key = a.service_id;
-        if (!appMap[key]) {
-          appMap[key] = a;
-        } else {
-          var existing = appMap[key];
-          // Prefer non-rejected over rejected
-          if (existing.status === 'rejected' && a.status !== 'rejected') {
-            appMap[key] = a;
-          } else if (a.status === 'rejected' && existing.status !== 'rejected') {
-            // keep existing (non-rejected)
-          } else {
-            // Both same priority — keep the newer one
-            var existDate = new Date(existing.created_at || 0).getTime();
-            var newDate = new Date(a.created_at || 0).getTime();
-            if (newDate > existDate) appMap[key] = a;
-          }
-        }
-      });
-      applications = Object.values(appMap);
-    } catch (e) {
-      console.warn('Failed to load user applications:', e.message);
+    const profile = results[0].status === 'fulfilled' ? results[0].value : null;
+    const docs = results[1].status === 'fulfilled' ? results[1].value : [];
+    let applications = results[2].status === 'fulfilled' ? results[2].value : [];
+    let recommendations = results[3].status === 'fulfilled' ? results[3].value : [];
+    if (results[4].status === 'fulfilled') {
+      allServices = results[4].value;
     }
 
-    let recommendations = [];
-    try {
-      recommendations = await apiCall('/services/recommendations/list');
+    if (!profile) {
+      throw new Error('Failed to load user profile data');
+    }
+
+    // Deduplicate: keep only the latest application per service_id
+    // If both rejected and non-rejected exist, prefer the non-rejected one
+    var appMap = {};
+    applications.forEach(function(a) {
+      var key = a.service_id;
+      if (!appMap[key]) {
+        appMap[key] = a;
+      } else {
+        var existing = appMap[key];
+        // Prefer non-rejected over rejected
+        if (existing.status === 'rejected' && a.status !== 'rejected') {
+          appMap[key] = a;
+        } else if (a.status === 'rejected' && existing.status !== 'rejected') {
+          // keep existing (non-rejected)
+        } else {
+          // Both same priority — keep the newer one
+          var existDate = new Date(existing.created_at || 0).getTime();
+          var newDate = new Date(a.created_at || 0).getTime();
+          if (newDate > existDate) appMap[key] = a;
+        }
+      }
+    });
+    applications = Object.values(appMap);
     } catch (e) {
       console.warn('Failed to load recommendations:', e.message);
     }
@@ -1830,7 +1875,7 @@ async function loadDashboardData() {
       const nowMs = Date.now();
       docs.forEach(doc => {
         if (doc.is_verified === 1) {
-          const ed = doc.extracted_data || {};
+          const ed = typeof doc.extracted_data === 'string' ? JSON.parse(doc.extracted_data) : (doc.extracted_data || {});
           const expiryStr = ed.expiry || ed.validity_date || '';
           if (!expiryStr || expiryStr === 'Permanent') return;
           const parts = expiryStr.split('/');
@@ -1953,20 +1998,20 @@ async function loadDigitalTwinScreen() {
           // Header row with icon and status
           historyHtml += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">';
           historyHtml += '<div class="recent-app-icon-wrap ' + bgClass + '" style="flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="' + iconColor + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div>';
-          historyHtml += '<div style="flex:1;min-width:0;"><h5 style="font-size:13px;font-weight:700;color:#1E293B;margin:0;">' + (app.service_name || 'Service') + '</h5>';
+          historyHtml += '<div style="flex:1;min-width:0;"><h5 style="font-size:13px;font-weight:700;color:#1E293B;margin:0;">' + escapeHTML(app.service_name || 'Service') + '</h5>';
           historyHtml += '<p style="font-size:10px;color:#94A3B8;margin:2px 0 0;">' + dateStr + ' at ' + timeStr + '</p></div>';
           historyHtml += '<span style="font-size:9px;font-weight:700;color:' + statusColor + ';background:' + statusBg + ';padding:4px 10px;border-radius:20px;text-transform:uppercase;white-space:nowrap;">' + statusLabel + '</span>';
           historyHtml += '</div>';
           // Details grid
           historyHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:10px;">';
-          historyHtml += '<div><span style="color:#94A3B8;">Application ID</span><br><span style="font-weight:600;color:#1E293B;">' + (app.id || 'N/A') + '</span></div>';
+          historyHtml += '<div><span style="color:#94A3B8;">Application ID</span><br><span style="font-weight:600;color:#1E293B;">' + escapeHTML(app.id || 'N/A') + '</span></div>';
 
           historyHtml += '<div><span style="color:#94A3B8;">Status</span><br><span style="font-weight:600;color:' + statusColor + ';">' + statusLabel + '</span></div>';
           historyHtml += '<div><span style="color:#94A3B8;">Submitted</span><br><span style="font-weight:600;color:#1E293B;">' + dateStr + '</span></div>';
           historyHtml += '</div>';
           // Rejection reason
           if (app.status === 'rejected' && app.officer_notes) {
-            historyHtml += '<div style="margin-top:8px;padding:8px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;font-size:10px;color:#DC2626;"><b>Rejection Reason:</b> ' + app.officer_notes + '</div>';
+            historyHtml += '<div style="margin-top:8px;padding:8px;background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;font-size:10px;color:#DC2626;"><b>Rejection Reason:</b> ' + escapeHTML(app.officer_notes) + '</div>';
           }
           // Approved message
           if (app.status === 'approved') {
@@ -2134,13 +2179,13 @@ function setupProfileForm() {
       await apiCall('/auth/profile', 'PUT', data);
       showToast('Profile parameters updated successfully');
       switchScreen('screen-profile');
-      loadAdminDashboard();
+      if (currentRole === 'admin') loadAdminDashboard();
     } catch (err) {
       alert(`Save failed: ${err.message}`);
     }
   };
 
-  document.getElementById('profile-form-new').addEventListener('submit', saveProfileData);
+  document.getElementById('profile-form-new')?.addEventListener('submit', saveProfileData);
   document.getElementById('profile-edit-save')?.addEventListener('click', saveProfileData);
 }
 
@@ -2370,7 +2415,7 @@ function setupVaultUploader() {
   }
 
   // Local Scans file picker
-  triggerBtn.addEventListener('click', async () => {
+  triggerBtn?.addEventListener('click', async () => {
     // Fetch existing documents to filter out already-uploaded types
     const docs = await apiCall('/documents');
     const uploadedTypes = docs.map(d => d.document_type);
@@ -2627,8 +2672,14 @@ function showOCRDetailsSheet(doc) {
   const title = `OCR Scan: ${getDocumentTitle(doc.document_type)}`;
   
   let extData = doc.extracted_data;
+  if (typeof extData === 'string') {
+    try { extData = JSON.parse(extData); } catch (e) {}
+  }
   if (!extData && doc.validation_status && doc.validation_status.extracted_data) {
     extData = doc.validation_status.extracted_data;
+    if (typeof extData === 'string') {
+      try { extData = JSON.parse(extData); } catch (e) {}
+    }
   }
   if (!extData) {
     extData = doc;
@@ -3037,8 +3088,11 @@ async function openServiceFormByName(name) {
       if (allServices[j].name.toLowerCase().indexOf(firstWord) !== -1) { matched = allServices[j]; break; }
     }
   }
-  if (!matched && allServices.length > 0) matched = allServices[0];
-  if (matched) showServiceDetails(matched);
+  if (!matched) {
+    showToast('Service not found matching "' + name + '"', 'warning');
+    return;
+  }
+  showServiceDetails(matched);
 }
 
 async function showServiceDetails(s) {
@@ -3325,115 +3379,117 @@ async function showServiceDetails(s) {
     });
 
     // Bind inline upload handlers
-    var inlineInputs = document.querySelectorAll('.inline-doc-upload');
-    inlineInputs.forEach(function(input) {
-      input.addEventListener('change', async function() {
-        var file = this.files[0];
-        if (!file) return;
-        var docType = this.getAttribute('data-doctype');
-        var docName = this.getAttribute('data-docname');
-        var row = this.closest('div');
-        // Show uploading state
-        var label = this.parentElement;
-        label.innerHTML = '<span style="font-size:11px">Uploading...</span>';
-        try {
-          var fd = new FormData();
-          fd.append('document', file);
-          fd.append('document_type', docType);
-          fd.append('skip_ocr', 'true');
-          var uploadRes = await apiCall('/documents/upload', 'POST', fd, true);
-          // Update row to show uploaded + view button
-          row.style.background = '#F0FDF4';
-          row.style.borderColor = '#BBF7D0';
-          var viewFilePath = (uploadRes.document && uploadRes.document.file_path) ? uploadRes.document.file_path : '';
-          label.outerHTML = `<span style="display:flex;align-items:center;gap:6px;">
-            <span style="color:#16A34A;font-size:11px;font-weight:700">Uploaded</span>
-            ${viewFilePath ? `<span class="inline-view-doc" data-fp="${viewFilePath}" style="color:#1E40AF;font-size:10px;font-weight:700;cursor:pointer;text-decoration:underline;">View</span>` : ''}
-          </span>`;
-          // Bind view click
-          var viewBtn = row.querySelector('.inline-view-doc');
-          if (viewBtn) {
-            viewBtn.addEventListener('click', function(ev) {
-              ev.stopPropagation();
-              var fp = this.getAttribute('data-fp');
-              var fileUrl = '/uploads/' + fp;
-              var ext = fp.split('.').pop().toLowerCase();
-              var previewHtml = '';
-              if (['jpg','jpeg','png','gif','webp','bmp'].includes(ext)) {
-                previewHtml = '<div style="text-align:center;padding:8px 0;"><img src="' + fileUrl + '" style="max-width:100%;max-height:60vh;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);" alt="Preview"/></div>';
-              } else if (ext === 'pdf') {
-                previewHtml = '<div style="padding:8px 0;"><iframe src="' + fileUrl + '" style="width:100%;height:60vh;border:none;border-radius:8px;"></iframe></div>';
-              } else {
-                previewHtml = '<div style="text-align:center;padding:20px;"><a href="' + fileUrl + '" target="_blank" style="color:#1E40AF;font-weight:700;">Download</a></div>';
-              }
-              previewHtml += '<button class="btn btn-primary" onclick="closeBottomSheet()" style="width:100%;margin-top:10px;font-weight:700;background:#046A38 !important;border:none !important;">Close</button>';
-              openBottomSheet(docName, previewHtml);
-            });
-          }
-          showToast(docName + ' uploaded successfully!');
-          loadVaultItems();
-          // Re-check if all are uploaded now
-          var stillMissing = document.querySelectorAll('.inline-doc-upload');
-          if (stillMissing.length === 0) {
-            // All done - add apply button
-            var container = document.querySelector('#bottom-sheet-content > div > div');
-            if (container) {
-              var msgP = container.querySelector('p[style*="DC2626"]');
-              if (msgP) {
-                msgP.style.color = '#16A34A';
-                msgP.textContent = 'All required documents are uploaded!';
-                msgP.style.fontWeight = '600';
-              }
-              // Add apply button if not there
-              if (!document.getElementById('btn-final-apply')) {
-                var applyBtn = document.createElement('button');
-                applyBtn.id = 'btn-final-apply';
-                applyBtn.style.cssText = 'width:100%;margin-top:8px;background:#046A38;border:none;color:#fff;padding:14px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer';
-                applyBtn.textContent = 'Apply';
-                applyBtn.addEventListener('click', async function() {
-                  this.disabled = true;
-                  this.textContent = 'Submitting...';
-                  try {
-                    var formData2 = { service_name: s.name, service: s.name, autoFields: autoFields, submitted_at: new Date().toISOString() };
-                    var submitRes = await apiCall('/services/submit', 'POST', { service_id: s.id, form_data: formData2, readiness_score: 100 });
-                    deleteDraft(s.id);
-                    closeBottomSheet();
-                    var successHtml = '<div style="text-align:center;padding:20px 10px;">' +
-                      '<div style="width:60px;height:60px;border-radius:50%;background:rgba(4,106,56,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#046A38" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>' +
-                      '<h3 style="font-size:16px;font-weight:800;color:#1E293B;margin-bottom:6px;">Applied Successfully!</h3>' +
-                      '<p style="font-size:12px;color:#64748B;margin-bottom:16px;">Your application has been submitted for officer review.</p>' +
-                      '<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:12px;margin-bottom:16px;"><p style="font-size:10px;color:#64748B;margin-bottom:4px;">Application Number</p><p style="font-size:16px;font-weight:800;color:#046A38;letter-spacing:1px;">' + (submitRes.application_id || 'N/A') + '</p></div>' +
-                      '<div style="display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:16px;"><span style="width:8px;height:8px;border-radius:50%;background:#3B82F6;"></span><span style="font-size:11px;color:#3B82F6;font-weight:600;">Status: Applied</span></div>' +
-                      '<p style="font-size:10px;color:#94A3B8;">An officer will review your application shortly. You\'ll be notified of any status changes.</p>' +
-                      '<button class="btn btn-accent" onclick="closeBottomSheet();switchScreen(\'screen-dashboard\');" style="width:100%;margin-top:16px;">Back to Dashboard</button></div>';
-                    openBottomSheet('Application Submitted', successHtml);
-                    loadDashboardData();
-                    loadAdminDashboard();
-                  } catch(err2) {
-                    this.disabled = false;
-                    this.textContent = 'Apply';
-                    showToast('Submission failed: ' + (err2.message || 'Error'), 'warning');
-                  }
-                });
-                container.appendChild(applyBtn);
-              }
+    async function handleUpload() {
+      var file = this.files[0];
+      if (!file) return;
+      var docType = this.getAttribute('data-doctype');
+      var docName = this.getAttribute('data-docname');
+      var row = this.closest('div');
+      // Show uploading state
+      var label = this.parentElement;
+      label.innerHTML = '<span style="font-size:11px">Uploading...</span>';
+      try {
+        var fd = new FormData();
+        fd.append('document', file);
+        fd.append('document_type', docType);
+        fd.append('skip_ocr', 'true');
+        var uploadRes = await apiCall('/documents/upload', 'POST', fd, true);
+        // Update row to show uploaded + view button
+        row.style.background = '#F0FDF4';
+        row.style.borderColor = '#BBF7D0';
+        var viewFilePath = (uploadRes.document && uploadRes.document.file_path) ? uploadRes.document.file_path : '';
+        label.outerHTML = `<span style="display:flex;align-items:center;gap:6px;">
+          <span style="color:#16A34A;font-size:11px;font-weight:700">Uploaded</span>
+          ${viewFilePath ? `<span class="inline-view-doc" data-fp="${viewFilePath}" style="color:#1E40AF;font-size:10px;font-weight:700;cursor:pointer;text-decoration:underline;">View</span>` : ''}
+        </span>`;
+        // Bind view click
+        var viewBtn = row.querySelector('.inline-view-doc');
+        if (viewBtn) {
+          viewBtn.addEventListener('click', function(ev) {
+            ev.stopPropagation();
+            var fp = this.getAttribute('data-fp');
+            var fileUrl = '/uploads/' + fp;
+            var ext = fp.split('.').pop().toLowerCase();
+            var previewHtml = '';
+            if (['jpg','jpeg','png','gif','webp','bmp'].includes(ext)) {
+              previewHtml = '<div style="text-align:center;padding:8px 0;"><img src="' + fileUrl + '" style="max-width:100%;max-height:60vh;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);" alt="Preview"/></div>';
+            } else if (ext === 'pdf') {
+              previewHtml = '<div style="padding:8px 0;"><iframe src="' + fileUrl + '" style="width:100%;height:60vh;border:none;border-radius:8px;"></iframe></div>';
+            } else {
+              previewHtml = '<div style="text-align:center;padding:20px;"><a href="' + fileUrl + '" target="_blank" style="color:#1E40AF;font-weight:700;">Download</a></div>';
+            }
+            previewHtml += '<button class="btn btn-primary" onclick="closeBottomSheet()" style="width:100%;margin-top:10px;font-weight:700;background:#046A38 !important;border:none !important;">Close</button>';
+            openBottomSheet(docName, previewHtml);
+          });
+        }
+        showToast(docName + ' uploaded successfully!');
+        loadVaultItems();
+        // Re-check if all are uploaded now
+        var stillMissing = document.querySelectorAll('.inline-doc-upload');
+        if (stillMissing.length === 0) {
+          // All done - add apply button
+          var container = document.querySelector('#bottom-sheet-content > div > div');
+          if (container) {
+            var msgP = container.querySelector('p[style*="DC2626"]');
+            if (msgP) {
+              msgP.style.color = '#16A34A';
+              msgP.textContent = 'All required documents are uploaded!';
+              msgP.style.fontWeight = '600';
+            }
+            // Add apply button if not there
+            if (!document.getElementById('btn-final-apply')) {
+              var applyBtn = document.createElement('button');
+              applyBtn.id = 'btn-final-apply';
+              applyBtn.style.cssText = 'width:100%;margin-top:8px;background:#046A38;border:none;color:#fff;padding:14px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer';
+              applyBtn.textContent = 'Apply';
+              applyBtn.addEventListener('click', async function() {
+                this.disabled = true;
+                this.textContent = 'Submitting...';
+                try {
+                  var formData2 = { service_name: s.name, service: s.name, autoFields: autoFields, submitted_at: new Date().toISOString() };
+                  var submitRes = await apiCall('/services/submit', 'POST', { service_id: s.id, form_data: formData2, readiness_score: 100 });
+                  deleteDraft(s.id);
+                  closeBottomSheet();
+                  var successHtml = '<div style="text-align:center;padding:20px 10px;">' +
+                    '<div style="width:60px;height:60px;border-radius:50%;background:rgba(4,106,56,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#046A38" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>' +
+                    '<h3 style="font-size:16px;font-weight:800;color:#1E293B;margin-bottom:6px;">Applied Successfully!</h3>' +
+                    '<p style="font-size:12px;color:#64748B;margin-bottom:16px;">Your application has been submitted for officer review.</p>' +
+                    '<div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;padding:12px;margin-bottom:16px;"><p style="font-size:10px;color:#64748B;margin-bottom:4px;">Application Number</p><p style="font-size:16px;font-weight:800;color:#046A38;letter-spacing:1px;">' + (submitRes.application_id || 'N/A') + '</p></div>' +
+                    '<div style="display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:16px;"><span style="width:8px;height:8px;border-radius:50%;background:#3B82F6;"></span><span style="font-size:11px;color:#3B82F6;font-weight:600;">Status: Applied</span></div>' +
+                    '<p style="font-size:10px;color:#94A3B8;">An officer will review your application shortly. You\'ll be notified of any status changes.</p>' +
+                    '<button class="btn btn-accent" onclick="closeBottomSheet();switchScreen(\'screen-dashboard\');" style="width:100%;margin-top:16px;">Back to Dashboard</button></div>';
+                  openBottomSheet('Application Submitted', successHtml);
+                  loadDashboardData();
+                  loadAdminDashboard();
+                } catch(err2) {
+                  this.disabled = false;
+                  this.textContent = 'Apply';
+                  showToast('Submission failed: ' + (err2.message || 'Error'), 'warning');
+                }
+              });
+              container.appendChild(applyBtn);
             }
           }
-        } catch(err) {
-          // Show retry button instead of just "Failed"
-          label.innerHTML = `<label style="color:#fff;font-size:10px;font-weight:700;background:#DC2626;padding:4px 10px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-            Retry
-            <input type="file" accept="image/*,.pdf" capture="environment" data-doctype="${docType}" data-docname="${docName}" class="inline-doc-upload" style="display:none" />
-          </label>`;
-          // Re-bind the new retry input
-          var retryInput = label.querySelector('.inline-doc-upload');
-          if (retryInput) {
-            retryInput.addEventListener('change', arguments.callee.bind(retryInput));
-          }
-          showToast('Upload failed: ' + (err.message || err.error || 'Error'), 'warning');
         }
-      });
+      } catch(err) {
+        // Show retry button instead of just "Failed"
+        label.innerHTML = `<label style="color:#fff;font-size:10px;font-weight:700;background:#DC2626;padding:4px 10px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Retry
+          <input type="file" accept="image/*,.pdf" capture="environment" data-doctype="${docType}" data-docname="${docName}" class="inline-doc-upload" style="display:none" />
+        </label>`;
+        // Re-bind the new retry input
+        var retryInput = label.querySelector('.inline-doc-upload');
+        if (retryInput) {
+          retryInput.addEventListener('change', handleUpload);
+        }
+        showToast('Upload failed: ' + (err.message || err.error || 'Error'), 'warning');
+      }
+    }
+
+    var inlineInputs = document.querySelectorAll('.inline-doc-upload');
+    inlineInputs.forEach(function(input) {
+      input.addEventListener('change', handleUpload);
     });
 
     if (missing.length === 0) {
@@ -4175,6 +4231,7 @@ function updateLocationUI() {
 }
 
 function initLeafletMap() {
+  if (typeof L === 'undefined') return;
   if (activeMap) {
     setTimeout(() => {
       activeMap.invalidateSize();
@@ -4348,7 +4405,7 @@ async function loadNotifications() {
   let docs = [];
   let recommendations = [];
   try {
-    docs = await apiCall('/documents/list');
+    docs = await apiCall('/documents');
   } catch (e) { console.warn('Failed to load docs for notifications:', e.message); }
   try {
     recommendations = await apiCall('/services/recommendations/list');
@@ -4415,7 +4472,8 @@ async function loadNotifications() {
   if (docs && docs.length > 0) {
     docs.forEach(doc => {
       if (doc.is_verified) {
-        const expiryStr = (doc.extracted_data && (doc.extracted_data.expiry || doc.extracted_data.validity_date)) || '';
+        const ed = typeof doc.extracted_data === 'string' ? JSON.parse(doc.extracted_data) : (doc.extracted_data || {});
+        const expiryStr = ed.expiry || ed.validity_date || '';
         if (!expiryStr || expiryStr === 'Permanent') return;
         const parts = expiryStr.split('/');
         let expiryDate;
@@ -4659,7 +4717,7 @@ function startStatusPolling() {
         _lastAppStatuses[app.id] = curStatus;
       });
     } catch (e) { /* silent */ }
-  }, 10000);
+  }, 30000);
 }
 
 function stopStatusPolling() {
@@ -4679,7 +4737,7 @@ async function startRenewalReminders() {
 async function checkRenewalReminders() {
   if (localStorage.getItem('pref_push') === 'off') return;
   try {
-    const docs = await apiCall('/documents/list');
+    const docs = await apiCall('/documents');
     if (!docs || docs.length === 0) return;
     const now = new Date();
     const shownKey = 'renewal_reminders_shown';
@@ -4687,7 +4745,8 @@ async function checkRenewalReminders() {
     
     docs.forEach(doc => {
       if (!doc.is_verified) return;
-      const expiryStr = doc.extracted_data?.expiry || doc.extracted_data?.validity_date;
+      const ed = typeof doc.extracted_data === 'string' ? JSON.parse(doc.extracted_data) : (doc.extracted_data || {});
+      const expiryStr = ed.expiry || ed.validity_date;
       if (!expiryStr || expiryStr === 'Permanent') return;
       
       // Parse expiry date
@@ -5078,35 +5137,43 @@ async function loadAdminDashboard() {
     const stats = await apiCall('/admin/analytics');
     
     adminElement.innerText = stats.total_citizens;
-    document.getElementById('admin-val-apps').innerText = stats.total_applications;
-    document.getElementById('admin-val-docs').innerText = stats.total_documents_vaulted;
-    document.getElementById('admin-val-prevention').innerText = `${stats.rejection_prevention_rate}%`;
+    
+    const adminApps = document.getElementById('admin-val-apps');
+    if (adminApps) adminApps.innerText = stats.total_applications;
+    
+    const adminDocs = document.getElementById('admin-val-docs');
+    if (adminDocs) adminDocs.innerText = stats.total_documents_vaulted;
+    
+    const adminPrev = document.getElementById('admin-val-prevention');
+    if (adminPrev) adminPrev.innerText = `${stats.rejection_prevention_rate}%`;
 
     // Render Table Queue
     loadAdminQueue();
 
     // Render Service usages breakdown chart
     const chartContainer = document.getElementById('admin-service-chart');
-    chartContainer.innerHTML = '';
-    
-    const usage = stats.service_usage || [];
-    const maxVal = Math.max(...usage.map(u => u.count), 1);
+    if (chartContainer) {
+      chartContainer.innerHTML = '';
+      
+      const usage = stats.service_usage || [];
+      const maxVal = Math.max(...usage.map(u => u.count), 1);
 
-    usage.forEach(item => {
-      const pctWidth = (item.count / maxVal) * 100;
-      const bar = document.createElement('div');
-      bar.className = 'chart-bar-item';
-      bar.innerHTML = `
-        <div class="chart-bar-label">
-          <span>${item.name}</span>
-          <span>${item.count} Submissions</span>
-        </div>
-        <div class="chart-bar-bg">
-          <div class="chart-bar-fill" style="width: ${pctWidth}%"></div>
-        </div>
-      `;
-      chartContainer.appendChild(bar);
-    });
+      usage.forEach(item => {
+        const pctWidth = (item.count / maxVal) * 100;
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar-item';
+        bar.innerHTML = `
+          <div class="chart-bar-label">
+            <span>${item.name}</span>
+            <span>${item.count} Submissions</span>
+          </div>
+          <div class="chart-bar-bg">
+            <div class="chart-bar-fill" style="width: ${pctWidth}%"></div>
+          </div>
+        `;
+        chartContainer.appendChild(bar);
+      });
+    }
 
   } catch (err) {
     console.warn("Admin panel stats fetch bypassed (requires Admin role token). Message:", err.message);
@@ -5115,6 +5182,7 @@ async function loadAdminDashboard() {
 
 async function loadAdminQueue() {
   const tbody = document.getElementById('admin-apps-tbody');
+  if (!tbody) return;
   tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading packages queue...</td></tr>';
 
   try {
@@ -5135,13 +5203,16 @@ async function loadAdminQueue() {
 
         <td><span style="color:${app.status === 'pending' ? 'orange' : 'green'}">${app.status.toUpperCase()}</span></td>
         <td>
-          <button class="btn-sm" id="btn-admin-pdf" style="font-size: 9px; padding: 4px 8px;">View Receipt</button>
+          <button class="btn-sm btn-admin-pdf" style="font-size: 9px; padding: 4px 8px;">View Receipt</button>
         </td>
       `;
 
-      tr.querySelector('#btn-admin-pdf').addEventListener('click', () => {
-        window.open(`${window.location.origin}/api/applications/download/${app.package_pdf_path}`);
-      });
+      var pdfBtn = tr.querySelector('.btn-admin-pdf');
+      if (pdfBtn) {
+        pdfBtn.addEventListener('click', () => {
+          window.open(`${window.location.origin}/api/applications/download/${app.package_pdf_path}`);
+        });
+      }
 
       tbody.appendChild(tr);
     });
@@ -5451,14 +5522,22 @@ function switchLanguage(lang) {
   } else if (hour >= 17) {
     timeKey = 'evening';
   }
-  document.getElementById('lbl-namaste').innerText = dict[timeKey] || dict.namaste;
-  document.getElementById('lbl-twin-title').innerText = dict.twin_title;
-  document.getElementById('lbl-copilot-title').innerText = dict.copilot_title;
-  document.getElementById('lbl-copilot-desc').innerText = dict.copilot_desc;
-  document.getElementById('lbl-tracker-title').innerText = dict.tracker_title;
-  document.getElementById('lbl-track-submitted').innerText = dict.track_submitted;
-  document.getElementById('lbl-track-vro').innerText = dict.track_vro;
-  document.getElementById('lbl-track-mro').innerText = dict.track_mro;
+  const elNamaste = document.getElementById('lbl-namaste');
+  if (elNamaste) elNamaste.innerText = dict[timeKey] || dict.namaste;
+  const elTwinTitle = document.getElementById('lbl-twin-title');
+  if (elTwinTitle) elTwinTitle.innerText = dict.twin_title;
+  const elCopilotTitle = document.getElementById('lbl-copilot-title');
+  if (elCopilotTitle) elCopilotTitle.innerText = dict.copilot_title;
+  const elCopilotDesc = document.getElementById('lbl-copilot-desc');
+  if (elCopilotDesc) elCopilotDesc.innerText = dict.copilot_desc;
+  const elTrackerTitle = document.getElementById('lbl-tracker-title');
+  if (elTrackerTitle) elTrackerTitle.innerText = dict.tracker_title;
+  const elTrackSubmitted = document.getElementById('lbl-track-submitted');
+  if (elTrackSubmitted) elTrackSubmitted.innerText = dict.track_submitted;
+  const elTrackVro = document.getElementById('lbl-track-vro');
+  if (elTrackVro) elTrackVro.innerText = dict.track_vro;
+  const elTrackMro = document.getElementById('lbl-track-mro');
+  if (elTrackMro) elTrackMro.innerText = dict.track_mro;
 
   // -- Login page labels --
   const loginTitle = document.querySelector('.login-title');
@@ -5582,6 +5661,7 @@ function simulateVoiceAssistant() {
   const micBtn = document.getElementById('btn-voice-mic');
   const queryBox = document.getElementById('copilot-query');
   
+  if (!micBtn || !queryBox) return;
   if (micBtn.classList.contains('listening')) return;
   
   // Clear box and start listening

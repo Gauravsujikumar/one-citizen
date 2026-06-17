@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const { authenticateToken } = require('./auth');
+const firestore = require('../firestore');
 
 const AI_SERVICES_URL = process.env.AI_SERVICES_URL || 'http://127.0.0.1:8000';
 
@@ -216,15 +217,14 @@ router.get('/recommendations/list', authenticateToken, async (req, res) => {
 router.get('/auto-fill/:serviceId', authenticateToken, async (req, res) => {
   try {
     // Get profile
-    const profileRes = await db.query('SELECT * FROM citizen_profiles WHERE user_id = $1', [req.user.id]);
-    const profile = profileRes.rows[0];
+    const profile = await firestore.getProfile(req.user.id);
     
     // Get user mobile
     const userRes = await db.query('SELECT mobile FROM users WHERE id = $1', [req.user.id]);
     const user = userRes.rows[0];
     
     // Get documents in vault to extract numbers and data
-    const docsRes = await db.query('SELECT * FROM documents WHERE user_id = $1', [req.user.id]);
+    const docs = await firestore.getDocuments(req.user.id);
     
     const fillData = {
       name: profile?.name || '',
@@ -242,7 +242,7 @@ router.get('/auto-fill/:serviceId', authenticateToken, async (req, res) => {
       pincode: ''
     };
 
-    for (let doc of docsRes.rows) {
+    for (let doc of docs) {
       if (doc.document_type === 'aadhaar') {
         fillData.aadhaar_number = doc.extracted_id_number || '';
         // Try to get address from extracted_data
@@ -286,8 +286,7 @@ router.get('/readiness/:serviceId', authenticateToken, async (req, res) => {
     try { reqDocs = JSON.parse(service.required_documents); } catch(e) {}
 
     // Get User Documents in Vault
-    const docsRes = await db.query('SELECT * FROM documents WHERE user_id = $1', [req.user.id]);
-    const vaultDocs = docsRes.rows;
+    const vaultDocs = await firestore.getDocuments(req.user.id);
 
     let score = 100;
     const issues = [];
@@ -416,12 +415,10 @@ router.post('/submit', authenticateToken, async (req, res) => {
     let userDistrict = form_data.district || '';
     if (!userDistrict) {
       try {
-        const aadhaarRow = await db.query(
-          `SELECT extracted_data FROM documents WHERE user_id = $1 AND document_type = 'aadhaar' AND is_verified = 1 LIMIT 1`,
-          [req.user.id]
-        );
-        if (aadhaarRow.rows.length > 0) {
-          const ed = typeof aadhaarRow.rows[0].extracted_data === 'string' ? JSON.parse(aadhaarRow.rows[0].extracted_data) : aadhaarRow.rows[0].extracted_data;
+        const aadDocs = await firestore.getDocumentsByType(req.user.id, 'aadhaar');
+        const aadDoc = aadDocs.find(d => d.is_verified === 1);
+        if (aadDoc) {
+          const ed = typeof aadDoc.extracted_data === 'string' ? JSON.parse(aadDoc.extracted_data) : aadDoc.extracted_data;
           const addr = ed.address || '';
           // Extract district from address - look for known district names
           const knownDistricts = ['Hyderabad','Ranga Reddy','Rangareddy','Medchal','Sangareddy','Warangal','Karimnagar','Nizamabad','Khammam','Nalgonda','Mahabubnagar','Adilabad','Siddipet','Mancherial','Kamareddy','Medak','Suryapet','Jangaon','Yadadri','Vikarabad','Wanaparthy','Nagarkurnool','Jogulamba','Mulugu','Narayanpet','Jayashankar'];

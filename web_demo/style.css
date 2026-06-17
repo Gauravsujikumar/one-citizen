@@ -341,7 +341,7 @@ body {
 .splash-brand-subtitle {
   font-size: 9px;
   font-weight: 800;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(15, 41, 74, 0.5);
   letter-spacing: 3px;
 }
 
@@ -746,12 +746,13 @@ body {
 }
 
 .spacer-flex {
-  display: none;
+  display: block;
+  flex-grow: 1;
 }
 
 .login-bottom-section {
-  margin-top: 10px;
-  padding-bottom: 0;
+  margin-top: auto;
+  padding: 16px 24px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -760,6 +761,7 @@ body {
   width: 100%;
   max-width: none;
   box-sizing: border-box;
+  background: white;
 }
 
 .bottom-links {
@@ -807,6 +809,7 @@ body {
   color: #64748b;
   background: rgba(255,255,255,0.6);
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 }
 
 .shortcut-btn:hover {
@@ -1060,7 +1063,8 @@ body {
    ──────────────────────────────────────────────────────── */
 .illust-upload-once {
   position: relative;
-  width: 320px;
+  max-width: 320px;
+  width: 100%;
   height: 240px;
   display: flex;
   justify-content: center;
@@ -1349,7 +1353,6 @@ body {
   justify-content: center;
   align-items: center;
   filter: drop-shadow(0 12px 28px rgba(2, 25, 15, 0.25));
-  position: relative;
 }
 
 .folder-svg-layer {
@@ -1795,7 +1798,8 @@ body {
    ──────────────────────────────────────────────────────── */
 .illust-track-everything {
   position: relative;
-  width: 320px;
+  max-width: 320px;
+  width: 100%;
   height: 240px;
   display: flex;
   justify-content: center;
@@ -1803,7 +1807,8 @@ body {
 }
 
 .track-dash-preview {
-  width: 270px;
+  max-width: 270px;
+  width: 100%;
   height: 210px;
   background: #FFFFFF;
   border-radius: 16px;
@@ -1844,7 +1849,7 @@ body {
 
 .track-dash-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
   gap: 6px;
   margin-bottom: 10px;
 }
@@ -2018,8 +2023,7 @@ body {
 
 .twin-footer {
   display: flex;
-  justify-content: space-between;
-  align-size: 11px;
+  align-items: center;
   font-size: 10px;
   color: var(--text-light);
 }
@@ -2793,10 +2797,6 @@ body {
   to { opacity: 1; }
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 @keyframes slideUp {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
@@ -3534,6 +3534,7 @@ select.auto-filled {
 .seal-biometric-scanner {
   position: absolute;
   left: 0;
+  top: 0;
   width: 100%;
   height: 3px;
   background-color: var(--success-emerald);
@@ -3545,8 +3546,8 @@ select.auto-filled {
 }
 
 @keyframes scanLaser {
-  0%, 100% { top: 10%; }
-  50% { top: 90%; }
+  0%, 100% { transform: translateY(16px); }
+  50% { transform: translateY(144px); }
 }
 
 /* Title & Brand Animations */
@@ -3635,15 +3636,6 @@ select.auto-filled {
   background: linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent);
   transform: skewX(-25deg);
   transition: 0.75s;
-}
-
-#btn-login:hover::after {
-  animation: btnShine 1.5s infinite;
-}
-
-@keyframes btnShine {
-  from { left: -120%; }
-  to { left: 120%; }
 }
 
 /* Official State Logo Styling */
@@ -6843,7 +6835,7 @@ select.auto-filled {
   font-weight: 700;
   box-shadow: 0 4px 12px rgba(8, 87, 60, 0.3);
   cursor: pointer;
-  z-index: 75; /* Float above screen content but below nav/overlays */
+  z-index: 79; /* Float above screen content but below nav/overlays */
   display: none; /* Managed by switchScreen in JS */
   align-items: center;
   justify-content: center;
@@ -7124,7 +7116,7 @@ select.auto-filled {
 .insight-sparkle {
   font-size: 14px;
 }
-.insight-header h6 {
+.insight-header h5 {
   font-size: 11px;
   font-weight: 700;
   color: #92400e;
@@ -7238,9 +7230,6 @@ select.auto-filled {
 .btn-success-done:hover {
   transform: scale(1.04);
 }
-@keyframes fadeIn {
-  from { opacity: 0; } to { opacity: 1; }
-}
 @keyframes scaleUp {
   from { transform: scale(0.7); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
@@ -7277,7 +7266,7 @@ select.auto-filled {
   background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(217,119,6,0.05));
   border-color: rgba(217,119,6,0.15);
 }
-.phone-chassis.dark-theme .insight-header h6 {
+.phone-chassis.dark-theme .insight-header h5 {
   color: #fbbf24;
 }
 .phone-chassis.dark-theme .insight-text {

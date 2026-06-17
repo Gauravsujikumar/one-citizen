@@ -153,7 +153,17 @@ async function updateProfile(userId, data) {
     return;
   }
   // SQLite fallback
-  const fields = Object.keys(data);
+  const allowedFields = [
+    'name', 'dob', 'gender', 'occupation', 'education',
+    'income_category', 'income_amount', 'state', 'district',
+    'caste', 'is_farmer', 'family_members',
+    'father_name', 'mother_name', 'religion',
+    'marital_status', 'blood_group', 'address',
+    'city', 'pincode', 'phone', 'email',
+    'created_at', 'updated_at'
+  ];
+  const fields = Object.keys(data).filter(f => allowedFields.includes(f));
+  if (fields.length === 0) return;
   const sets = fields.map((f, i) => `${f} = $${i + 1}`);
   const values = fields.map(f => data[f]);
   values.push(userId);
@@ -214,7 +224,7 @@ async function deleteDocument(userId, docId) {
       .collection('documents').doc(docId).delete();
     return;
   }
-  await db.query('DELETE FROM documents WHERE id = $1', [docId]);
+  await db.query('DELETE FROM documents WHERE id = $1 AND user_id = $2', [docId, userId]);
 }
 
 async function deleteDocumentsByType(userId, docType) {
@@ -230,7 +240,7 @@ async function deleteDocumentsByType(userId, docType) {
     if (docs.length > 0) await batch.commit();
   } else {
     for (const doc of docs) {
-      await db.query('DELETE FROM documents WHERE id = $1', [doc.id]);
+      await db.query('DELETE FROM documents WHERE id = $1 AND user_id = $2', [doc.id, userId]);
     }
   }
   return docs;
@@ -248,7 +258,8 @@ async function getNotifications(userId) {
       .orderBy('created_at', 'desc').limit(20).get();
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   }
-  return [];
+  const result = await db.query('SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 20', [userId]);
+  return result.rows || [];
 }
 
 async function addNotification(userId, data) {
@@ -258,7 +269,12 @@ async function addNotification(userId, data) {
     await firestoreDb
       .collection('citizen_profiles').doc(String(userId))
       .collection('notifications').add(data);
+    return;
   }
+  await db.query(
+    'INSERT INTO notifications (user_id, title, message, is_read, type, created_at) VALUES ($1, $2, $3, $4, $5, $6)',
+    [userId, data.title, data.message || data.desc || '', data.is_read, data.type || 'alert', data.created_at]
+  );
 }
 
 async function markNotificationRead(userId, notifId) {
@@ -266,7 +282,9 @@ async function markNotificationRead(userId, notifId) {
     await firestoreDb
       .collection('citizen_profiles').doc(String(userId))
       .collection('notifications').doc(notifId).update({ is_read: 1 });
+    return;
   }
+  await db.query('UPDATE notifications SET is_read = 1 WHERE id = $1 AND user_id = $2', [notifId, userId]);
 }
 
 module.exports = {

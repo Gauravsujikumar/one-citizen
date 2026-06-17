@@ -20,12 +20,23 @@ process.on('unhandledRejection', (reason) => {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Enable CORS for frontend requests
-app.use(cors());
+// Enable CORS with origin restriction
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',') 
+  : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5000', 'http://127.0.0.1:5000', 'http://localhost:8000', 'http://127.0.0.1:8000'];
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+}));
 
-// Body Parsers
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Body Parsers with limits
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Serve Uploaded Files
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -83,7 +94,15 @@ app.get('/api/applications/download/:filename', (req, res) => {
     const packageId = (parts.length > 1 ? parts[1].split('.')[0] : filename.split('.')[0]) || 'N/A';
     const tempFile = path.resolve(__dirname, 'uploads', `temp_${filename}.txt`);
     fs.writeFileSync(tempFile, `OneCitizen AI Submission Package\n=================================\nPackage ID: ${packageId}\nStatus: Verified\nReady for submission at MeeSeva centers.`);
-    res.download(tempFile, 'OneCitizen_Package_Receipt.txt');
+    res.download(tempFile, 'OneCitizen_Package_Receipt.txt', (err) => {
+      try {
+        if (fs.existsSync(tempFile)) {
+          fs.unlinkSync(tempFile);
+        }
+      } catch (e) {
+        console.error('Failed to delete temporary receipt file:', e.message);
+      }
+    });
   }
 });
 

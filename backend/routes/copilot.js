@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('./auth');
 const db = require('../db');
+const firestore = require('../firestore');
 
 // Gemini AI Chat endpoint
 router.post('/chat', authenticateToken, async (req, res) => {
@@ -10,10 +11,8 @@ router.post('/chat', authenticateToken, async (req, res) => {
     if (!message) return res.status(400).json({ error: 'message is required' });
 
     // Fetch user context
-    const profileRes = await db.query('SELECT * FROM citizen_profiles WHERE user_id = $1', [req.user.id]);
-    const profile = profileRes.rows[0] || {};
-    const docsRes = await db.query('SELECT document_type, is_verified, extracted_name, validation_status, expires_at FROM documents WHERE user_id = $1', [req.user.id]);
-    const docs = docsRes.rows;
+    const profile = await firestore.getProfile(req.user.id) || {};
+    const docs = await firestore.getDocuments(req.user.id);
 
     const uploadedDocs = docs.map(d => {
       return `${d.document_type} (verified: ${d.is_verified ? 'yes' : 'no'})`;

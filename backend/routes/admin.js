@@ -1,8 +1,8 @@
-// routes/admin.js - Admin Portal Analytics & Management
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const { authenticateToken } = require('./auth');
+const firestore = require('../firestore');
 
 // Middleware to enforce Admin role
 function requireAdmin(req, res, next) {
@@ -17,7 +17,7 @@ function requireAdmin(req, res, next) {
 router.get('/analytics', authenticateToken, requireAdmin, async (req, res) => {
   try {
     // Counts
-    const usersCountRes = await db.query('SELECT count(*) as count FROM users WHERE role = \'citizen\'');
+    const usersCountRes = await db.query('SELECT count(*) as count FROM users WHERE role = $1', ['citizen']);
     const totalUsers = parseInt(usersCountRes.rows[0].count);
 
     const appsCountRes = await db.query('SELECT count(*) as count FROM applications');
@@ -101,7 +101,7 @@ router.get('/users', authenticateToken, requireAdmin, async (req, res) => {
 router.get('/applications', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT a.id, a.user_id, a.readiness_score, a.status, a.created_at, a.form_data, a.officer_notes,
+      `SELECT a.id, a.user_id, a.readiness_score, a.status, a.created_at, a.form_data, a.officer_notes, a.validation_report,
               s.name as service_name, COALESCE(p.name, u.email, 'Citizen') as citizen_name
        FROM applications a
        JOIN services s ON a.service_id = s.id
@@ -207,10 +207,11 @@ router.patch('/applications/:id/status', authenticateToken, requireAdmin, async 
     }
 
     if (notifTitle) {
-      await db.query(
-        `INSERT INTO notifications (user_id, title, message, type) VALUES ($1, $2, $3, $4)`,
-        [app.user_id, notifTitle, notifMessage, 'alert']
-      );
+      await firestore.addNotification(app.user_id, {
+        title: notifTitle,
+        message: notifMessage,
+        type: 'alert'
+      });
     }
 
     res.json({ message: `Application status updated to '${status}'`, application_id: req.params.id });

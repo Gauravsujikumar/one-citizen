@@ -8,8 +8,10 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'onecitizen_secure_secret_key';
 const OTP_EXPIRY_SECONDS = parseInt(process.env.OTP_EXPIRY_SECONDS || '300');
 
-// In-memory OTP store: { mobile: { otp, expiresAt } }
+// In-memory OTP store: { mobile: { otp, expiresAt, attempts } }
 const otpStore = new Map();
+// In-memory rate limiting store: { mobile: [timestamps] }
+const sendRateLimitStore = new Map();
 
 // Initialise Twilio client (only if credentials are configured)
 function getTwilioClient() {
@@ -36,11 +38,18 @@ router.post('/send', async (req, res) => {
     return res.status(400).json({ error: 'Valid 10-digit mobile number is required.' });
   }
 
-  const otp = generateOtp();
-  const expiresAt = Date.now() + OTP_EXPIRY_SECONDS * 1000;
+  // Rate Limiting: max 3 OTP requests per 5 minutes
+  const nowTime = Date.now();
+  const rateLimit = sendRateLimitStore.get(mobile) || [];
+  const activeRequests = rateLimit.filter(t => nowTime - t < 300000);
+  if (activeRequests.length >= 3) {
+    return res.status(429).json({ error: 'Too many OTP requests. Please wait 5 minutes before trying again.' });
+  }
+  activeRequests.push(nowTime);
+  sendRateLimitStore.set(mobile, activeRequests);
 
-  // Store OTP server-side
-  otpStore.set(mobile, { otp, expiresAt });
+  // Store OTP server-side with 0 attempts initially
+  otpStore.set(mobile, { otp, expiresAt, attempts: 0 });
 
   const client = getTwilioClient();
 
@@ -61,11 +70,14 @@ router.post('/send', async (req, res) => {
   } else {
     // ── Dev/Demo fallback: print to console ──
     console.warn(`[OTP - DEV MODE] +91${mobile} → OTP: ${otp}  (Twilio not configured)`);
-    res.json({
+    const responseData = {
       success: true,
-      message: `OTP sent to +91${mobile}`,
-      _dev_otp: otp  // Only returned when Twilio is NOT configured
-    });
+      message: `OTP sent to +91${mobile}`
+    };
+    if (process.env.NODE_ENV === 'development') {
+      responseData._dev_otp = otp;
+    }
+    res.json(responseData);
   }
 });
 
@@ -85,13 +97,23 @@ router.post('/verify', async (req, res) => {
     return res.status(400).json({ error: 'No OTP requested for this number. Please request again.' });
   }
 
+  if (record.attempts >= 5) {
+    otpStore.delete(mobile);
+    return res.status(403).json({ error: 'Too many failed verification attempts. Please request a new OTP.' });
+  }
+
   if (Date.now() > record.expiresAt) {
     otpStore.delete(mobile);
     return res.status(400).json({ error: 'OTP has expired. Please request a new one.' });
   }
 
   if (record.otp !== otp.trim()) {
-    return res.status(400).json({ error: 'Incorrect OTP. Please try again.' });
+    record.attempts = (record.attempts || 0) + 1;
+    if (record.attempts >= 5) {
+      otpStore.delete(mobile);
+      return res.status(400).json({ error: 'Incorrect OTP. Too many failed attempts, this OTP has been invalidated.' });
+    }
+    return res.status(400).json({ error: `Incorrect OTP. Please try again. (${5 - record.attempts} attempts remaining)` });
   }
 
   // OTP valid — consume it

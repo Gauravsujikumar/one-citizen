@@ -6,18 +6,20 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#0F294A">
+  <meta name="theme-color" content="#0B4F30">
   <title>OneCitizen AI - Citizen Digital Twin & Copilot Portal</title>
   <!-- Google Fonts & Leaflet Maps -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css?v=22">
 
   <!-- Firebase SDK (compat) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <!-- Your Firebase project config (fill in firebase-config.js) -->
-  <script src="firebase-config.js"></script>
+  <script defer src="firebase-config.js"></script>
 </head>
 <body>
 
@@ -178,11 +180,11 @@
                   
                   <!-- Primary Login Button (shown first) -->
                   <div id="login-entry-buttons" style="padding: 0 20px;">
-                    <button id="btn-show-login-options" class="btn btn-primary-gradient login-otp-btn" style="width:100%; font-size:14px; font-weight:700; padding:14px; letter-spacing:0.3px;" onclick="document.getElementById('login-entry-buttons').style.display='none'; var p=document.getElementById('login-options-panel'); p.style.display='block'; p.style.animation='fadeInUp 0.3s ease';">
+                    <button id="btn-show-login-options" class="btn btn-primary-gradient login-otp-btn" style="width:100%; font-size:14px; font-weight:700; padding:14px; letter-spacing:0.3px;">
                       Login
                     </button>
                     <p style="text-align:center; margin-top:14px; font-size:12px; color:#64748B;">
-                      New user? <span id="btn-show-signup" class="link" style="color:#046A38; font-weight:700; cursor:pointer; text-decoration:underline;" onclick="document.getElementById('login-entry-buttons').style.display='none'; var p=document.getElementById('login-options-panel'); p.style.display='block'; p.style.animation='fadeInUp 0.3s ease'; document.getElementById('confirm-password-group').style.display='block'; document.getElementById('email-login-btn-text').textContent='Create Account'; window._isSignupMode=true;">Create Account</span>
+                      New user? <span id="btn-show-signup" class="link" style="color:#046A38; font-weight:700; cursor:pointer; text-decoration:underline;">Create Account</span>
                     </p>
                   </div>
 
@@ -219,7 +221,7 @@
 
                     <!-- Back link -->
                     <p style="text-align:center; margin-top:8px; font-size:12px; color:#64748B;">
-                      <span id="btn-back-to-entry" class="link" style="color:#046A38; cursor:pointer;" onclick="document.getElementById('login-options-panel').style.display='none'; document.getElementById('login-entry-buttons').style.display='block'; document.getElementById('confirm-password-group').style.display='none'; document.getElementById('email-login-btn-text').textContent='Login'; window._isSignupMode=false;">← Back</span>
+                      <span id="btn-back-to-entry" class="link" style="color:#046A38; cursor:pointer;">← Back</span>
                     </p>
                   </div>
 
@@ -230,7 +232,7 @@
                 <div class="spacer-flex"></div>
 
                 <!-- Bottom Section (pinned to bottom) -->
-                <div class="login-bottom-section" style="position:absolute; bottom:16px; left:0; right:0; margin-top:0; padding:0 24px; display:flex; flex-direction:column; align-items:center; text-align:center;">
+                <div class="login-bottom-section" style="margin-top:auto; padding:16px 24px 8px; display:flex; flex-direction:column; align-items:center; text-align:center;">
                   <!-- Trust Section -->
                   <div class="login-trust-section" style="margin-bottom:8px;">
                     <p class="trust-message" style="text-align:center; margin:0; line-height:1.4;">
@@ -516,7 +518,7 @@
                     <h3 id="dash-greeting-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left !important;margin:0;font-size:16px;font-weight:800;color:white;">Welcome 👋</h3>
                   </div>
                   <div class="header-icons-group" style="margin-left:auto;flex-shrink:0;">
-                    <span class="alert-bell-circle" id="bell-nav">
+                    <span class="alert-bell-circle" id="bell-nav" role="button" aria-label="View notifications" tabindex="0">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9z"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                       <span class="badge-dot-count" id="bell-badge-count" style="display:none;">0</span>
                     </span>
@@ -568,7 +570,7 @@
                 <div class="ai-insight-card" id="ai-insight-card">
                   <div class="insight-header">
                     <span class="insight-sparkle">💡</span>
-                    <h6>AI Assistant Recommendation</h6>
+                    <h5>AI Assistant Recommendation</h5>
                   </div>
                   <p class="insight-text" id="ai-insight-text">Link your PAN Card to verify eligibility for the Telangana Post-Matric Scholarship scheme.</p>
                 </div>
@@ -939,7 +941,7 @@
                 <h3>Personal Details</h3>
               </div>
               <div class="screen-scroll-container form-padding">
-                <form id="profile-form-new">
+                <form id="profile-form-new" action="#" onsubmit="return false;">
 
                   <!-- Section: Personal -->
                   <div style="font-size:10px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.8px;margin:4px 0 10px;">Personal Information</div>
@@ -950,7 +952,7 @@
                   <div class="form-row">
                     <div class="form-group">
                       <label>Date of Birth</label>
-                      <input type="text" id="prof-dob" placeholder="DD/MM/YYYY">
+                      <input type="text" id="prof-dob" placeholder="DD/MM/YYYY" pattern="\d{2}/\d{2}/\d{4}" inputmode="numeric">
                     </div>
                     <div class="form-group">
                       <label>Gender</label>
@@ -1455,8 +1457,8 @@
   </div>
 
   <!-- Leaflet Javascript -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="app.js?v=20"></script>
+  <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script defer src="app.js?v=20"></script>
 
   <!-- Email Auth Handler (Firebase) -->
   <script>

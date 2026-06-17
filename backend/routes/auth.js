@@ -6,7 +6,13 @@ const jwt = require('jsonwebtoken');
 const db = require('../db');
 const admin = require('firebase-admin');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'onecitizen_secure_secret_key';
+let JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('CRITICAL: JWT_SECRET environment variable is missing in production!');
+  }
+  JWT_SECRET = 'onecitizen_secure_secret_key';
+}
 
 // ── Firebase Admin init (only when service account is configured) ──
 let firebaseAdminReady = false;
@@ -54,7 +60,7 @@ function authenticateToken(req, res, next) {
 
 // User Sign Up
 router.post('/signup', async (req, res) => {
-  const { email, password, role } = req.body;
+  const { email, password } = req.body;
 
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
@@ -71,7 +77,7 @@ router.post('/signup', async (req, res) => {
     const hash = await bcrypt.hash(password, salt);
 
     // Insert user
-    const userRole = role || 'citizen';
+    const userRole = 'citizen';
     const result = await db.query(
       'INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3)',
       [email, hash, userRole]
@@ -244,7 +250,8 @@ router.post('/firebase-login', async (req, res) => {
   let phoneNumber = mobile ? `+91${mobile}` : null;
 
   // Verify Firebase token
-  if (firebaseAdminReady && idToken !== 'demo_mock_token') {
+  const isDev = process.env.NODE_ENV === 'development';
+  if (firebaseAdminReady && (idToken !== 'demo_mock_token' || !isDev)) {
     try {
       const decoded = await admin.auth().verifyIdToken(idToken);
       firebaseUid = decoded.uid;
@@ -254,6 +261,10 @@ router.post('/firebase-login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid Firebase token: ' + e.message });
     }
   } else {
+    // Only allow demo mode in development
+    if (!isDev) {
+      return res.status(401).json({ error: 'Mock tokens are not allowed in production.' });
+    }
     // Demo mode fallback
     firebaseUid = 'demo_' + (email || mobile || 'user');
   }

@@ -84,6 +84,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
     return res.status(400).json({ error: 'document_type is required (e.g. aadhaar, pan, income, etc.)' });
   }
 
+  const isTempFile = !!req.file.buffer;
   const filePath = getFilePath(req.file);
   const storedFileName = getFileName(req.file);
   const documentId = 'doc_' + Math.random().toString(36).substr(2, 9);
@@ -455,6 +456,16 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
   } catch (err) {
     console.error('[Upload Error]', err.message, err.stack);
     res.status(500).json({ error: 'Failed to upload document: ' + err.message });
+  } finally {
+    if (isTempFile) {
+      try {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      } catch (e) {
+        console.error('Failed to clean up temporary file:', e.message);
+      }
+    }
   }
 });
 
