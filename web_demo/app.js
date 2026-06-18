@@ -966,6 +966,8 @@ function setupAuthHandlers() {
     const panel = document.getElementById('login-options-panel');
     panel.style.display = 'block';
     panel.style.animation = 'fadeInUp 0.3s ease';
+    const trustSection = document.getElementById('login-trust-section');
+    if (trustSection) trustSection.style.display = 'none';
   });
 
   // -- Event: Back button → return to entry -----------------
@@ -984,6 +986,8 @@ function setupAuthHandlers() {
     if (confirmPass) confirmPass.style.display = 'none';
     const loginBtnText = document.getElementById('email-login-btn-text');
     if (loginBtnText) loginBtnText.textContent = 'Login';
+    const trustSection = document.getElementById('login-trust-section');
+    if (trustSection) trustSection.style.display = 'block';
   });
 
   // -- Event: Create Account (same flow as login) -----------
@@ -1001,6 +1005,8 @@ function setupAuthHandlers() {
     if (confirmPass) confirmPass.style.display = 'block';
     const loginBtnText = document.getElementById('email-login-btn-text');
     if (loginBtnText) loginBtnText.textContent = 'Create Account';
+    const trustSection = document.getElementById('login-trust-section');
+    if (trustSection) trustSection.style.display = 'none';
   });
 
   // -- Event: Send OTP button -----------------------------
