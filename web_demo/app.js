@@ -1431,9 +1431,7 @@ async function loadDashboardData() {
       }
     });
     applications = Object.values(appMap);
-    } catch (e) {
-      console.warn('Failed to load recommendations:', e.message);
-    }
+
     
     // Only count the 6 core profile documents for citizen profile completeness
     const PROFILE_DOC_TYPES = ['aadhaar', 'pan', 'voter', 'driving', 'ration', 'passport'];
