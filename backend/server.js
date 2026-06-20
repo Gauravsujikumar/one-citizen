@@ -102,10 +102,33 @@ app.get('/api/diagnostic', async (req, res) => {
     const result = await db.query('SELECT 1 as test');
     report.db.query = 'success';
     report.db.result = result.rows;
+
+    try {
+      const usersResult = await db.query('SELECT count(*) as count FROM users');
+      report.db.usersTable = { status: 'exists', count: parseInt(usersResult.rows[0].count) };
+    } catch (uErr) {
+      report.db.usersTable = { status: 'error', error: uErr.message };
+    }
   } catch (err) {
     report.db.status = 'error';
     report.db.error = err.message;
     report.db.stack = err.stack;
+  }
+
+  try {
+    const admin = require('firebase-admin');
+    report.firebase = {
+      initializedApps: admin.apps.length,
+      serviceAccountPath: process.env.FIREBASE_SERVICE_ACCOUNT_PATH,
+      resolvedPath: process.env.FIREBASE_SERVICE_ACCOUNT_PATH 
+        ? require('path').resolve(process.cwd(), process.env.FIREBASE_SERVICE_ACCOUNT_PATH)
+        : null
+    };
+    if (report.firebase.resolvedPath) {
+      report.firebase.fileExists = require('fs').existsSync(report.firebase.resolvedPath);
+    }
+  } catch (fErr) {
+    report.firebase = { status: 'error', error: fErr.message };
   }
 
   res.json(report);
