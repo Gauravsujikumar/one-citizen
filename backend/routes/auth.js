@@ -242,34 +242,34 @@ router.put('/profile', authenticateToken, async (req, res) => {
 // Firebase Auth Login (Email/Password or Phone)
 // Body: { idToken: <Firebase ID token>, email: "user@example.com" }
 router.post('/firebase-login', async (req, res) => {
-  const { idToken, email, mobile } = req.body;
-  if (!idToken) return res.status(400).json({ error: 'Firebase ID token is required.' });
-
-  let firebaseUid = null;
-  let userEmail = email || null;
-  let phoneNumber = mobile ? `+91${mobile}` : null;
-
-  // Verify Firebase token
-  const isDev = process.env.NODE_ENV === 'development';
-  if (firebaseAdminReady && (idToken !== 'demo_mock_token' || !isDev)) {
-    try {
-      const decoded = await admin.auth().verifyIdToken(idToken);
-      firebaseUid = decoded.uid;
-      userEmail = decoded.email || userEmail;
-      phoneNumber = decoded.phone_number || phoneNumber;
-    } catch (e) {
-      return res.status(401).json({ error: 'Invalid Firebase token: ' + e.message });
-    }
-  } else {
-    // Only allow demo mode in development
-    if (!isDev) {
-      return res.status(401).json({ error: 'Mock tokens are not allowed in production.' });
-    }
-    // Demo mode fallback
-    firebaseUid = 'demo_' + (email || mobile || 'user');
-  }
-
   try {
+    const { idToken, email, mobile } = req.body;
+    if (!idToken) return res.status(400).json({ error: 'Firebase ID token is required.' });
+
+    let firebaseUid = null;
+    let userEmail = email || null;
+    let phoneNumber = mobile ? `+91${mobile}` : null;
+
+    // Verify Firebase token
+    const isDev = process.env.NODE_ENV === 'development';
+    if (firebaseAdminReady && (idToken !== 'demo_mock_token' || !isDev)) {
+      try {
+        const decoded = await admin.auth().verifyIdToken(idToken);
+        firebaseUid = decoded.uid;
+        userEmail = decoded.email || userEmail;
+        phoneNumber = decoded.phone_number || phoneNumber;
+      } catch (e) {
+        return res.status(401).json({ error: 'Invalid Firebase token: ' + e.message });
+      }
+    } else {
+      // Only allow demo mode in production if Firebase Admin is not ready/configured
+      if (!isDev && firebaseAdminReady) {
+        return res.status(401).json({ error: 'Mock tokens are not allowed in production.' });
+      }
+      // Demo mode fallback
+      firebaseUid = 'demo_' + (email || mobile || 'user');
+    }
+
     const firestore = require('../firestore');
 
     // Look for existing user by Firebase UID, then by email
