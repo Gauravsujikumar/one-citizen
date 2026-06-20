@@ -66,22 +66,27 @@ function ensureInitialized() {
 }
 
 function initSqlite() {
-  const sqlite3 = require('sqlite3').verbose();
-  let dbPath = path.resolve(__dirname, 'one_citizen.db');
-  if (process.env.VERCEL) {
-    dbPath = path.join(require('os').tmpdir(), 'one_citizen.db');
-    const srcPath = path.resolve(__dirname, 'one_citizen.db');
-    if (fs.existsSync(srcPath) && !fs.existsSync(dbPath)) {
-      try {
-        fs.copyFileSync(srcPath, dbPath);
-        console.log('[DB] Copied pre-seeded SQLite database to /tmp.');
-      } catch (copyErr) {
-        console.warn('[DB] Failed to copy pre-seeded SQLite database:', copyErr.message);
+  try {
+    const sqlite3 = require('sqlite3').verbose();
+    let dbPath = path.resolve(__dirname, 'one_citizen.db');
+    if (process.env.VERCEL) {
+      dbPath = path.join(require('os').tmpdir(), 'one_citizen.db');
+      const srcPath = path.resolve(__dirname, 'one_citizen.db');
+      if (fs.existsSync(srcPath) && !fs.existsSync(dbPath)) {
+        try {
+          fs.copyFileSync(srcPath, dbPath);
+          console.log('[DB] Copied pre-seeded SQLite database to /tmp.');
+        } catch (copyErr) {
+          console.warn('[DB] Failed to copy pre-seeded SQLite database:', copyErr.message);
+        }
       }
     }
+    console.log(`[DB] Connecting to SQLite at: ${dbPath}`);
+    sqliteDb = new sqlite3.Database(dbPath);
+  } catch (err) {
+    console.error('[DB] Failed to load sqlite3 native module:', err.message);
+    throw new Error('SQLite is not supported on Vercel serverless. Please configure a PostgreSQL database by adding the DATABASE_URL environment variable in your Vercel Project Settings.');
   }
-  console.log(`[DB] Connecting to SQLite at: ${dbPath}`);
-  sqliteDb = new sqlite3.Database(dbPath);
 }
 
 // Internal query — does NOT wait for init (used during setup to avoid circular deadlock)
