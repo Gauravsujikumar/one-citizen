@@ -22,7 +22,7 @@ async function initDb() {
     const { Pool } = require('pg');
     pgPool = new Pool({
       connectionString: pgUrl,
-      ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
+      ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false },
       connectionTimeoutMillis: 10000
     });
 
