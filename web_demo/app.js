@@ -51,7 +51,8 @@ async function safeParseResponse(response, defaultErrorMsg) {
   }
   var text = await response.text();
   if (!response.ok) {
-    var snippet = text.trim().substring(0, 100).replace(/<[^>]*>/g, '');
+    var cleanText = text.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+    var snippet = cleanText.substring(0, 150);
     throw new Error(defaultErrorMsg + ` (Status ${response.status}): ${snippet || 'Unknown error'}`);
   }
   throw new Error(`Unexpected non-JSON response from server (Status ${response.status})`);
