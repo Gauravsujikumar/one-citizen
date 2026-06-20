@@ -41,10 +41,10 @@ async function initDb() {
       dbType = 'sqlite';
       initSqlite();
     }
-  } else if (process.env.VERCEL) {
-    // On Vercel (serverless), SQLite cannot work — no persistent filesystem
-    throw new Error('DATABASE_URL is not set. Please add it in Vercel Project Settings → Environment Variables.');
   } else {
+    if (process.env.VERCEL) {
+      console.warn('[DB] DATABASE_URL is not set. Falling back to temporary SQLite in /tmp for Vercel Serverless Demo.');
+    }
     dbType = 'sqlite';
     initSqlite();
   }
@@ -67,8 +67,20 @@ function ensureInitialized() {
 
 function initSqlite() {
   const sqlite3 = require('sqlite3').verbose();
-  const dbPath = path.resolve(__dirname, 'one_citizen.db');
-  console.log(`[DB] Connecting to local SQLite at: ${dbPath}`);
+  let dbPath = path.resolve(__dirname, 'one_citizen.db');
+  if (process.env.VERCEL) {
+    dbPath = path.join(require('os').tmpdir(), 'one_citizen.db');
+    const srcPath = path.resolve(__dirname, 'one_citizen.db');
+    if (fs.existsSync(srcPath) && !fs.existsSync(dbPath)) {
+      try {
+        fs.copyFileSync(srcPath, dbPath);
+        console.log('[DB] Copied pre-seeded SQLite database to /tmp.');
+      } catch (copyErr) {
+        console.warn('[DB] Failed to copy pre-seeded SQLite database:', copyErr.message);
+      }
+    }
+  }
+  console.log(`[DB] Connecting to SQLite at: ${dbPath}`);
   sqliteDb = new sqlite3.Database(dbPath);
 }
 

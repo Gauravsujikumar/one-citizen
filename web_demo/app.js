@@ -24,6 +24,39 @@ function deduplicateApps(apps) {
   return Object.values(map);
 }
 
+function parseExtractedData(doc) {
+  if (!doc) return {};
+  var extData = doc.extracted_data;
+  if (!extData && doc.validation_status) {
+    extData = doc.validation_status.extracted_data;
+  }
+  if (!extData) return {};
+  if (typeof extData === 'string') {
+    try {
+      return JSON.parse(extData);
+    } catch (e) {
+      console.warn('Failed to parse extracted_data JSON:', e.message);
+      return {};
+    }
+  }
+  return extData;
+}
+
+async function safeParseResponse(response, defaultErrorMsg) {
+  var contentType = response.headers.get('content-type');
+  if (contentType && contentType.indexOf('application/json') !== -1) {
+    try {
+      return await response.json();
+    } catch (e) {}
+  }
+  var text = await response.text();
+  if (!response.ok) {
+    var snippet = text.trim().substring(0, 100).replace(/<[^>]*>/g, '');
+    throw new Error(defaultErrorMsg + ` (Status ${response.status}): ${snippet || 'Unknown error'}`);
+  }
+  throw new Error(`Unexpected non-JSON response from server (Status ${response.status})`);
+}
+
 // Shared helper: render application card in tracking-page style
 function renderAppCard(app) {
   var statusLabel = app.status === 'under_review' ? 'Under Review' : app.status === 'approved' ? 'Approved' : app.status === 'rejected' ? 'Rejected' : 'Applied';
@@ -91,7 +124,7 @@ async function showAppStatusCard(appId, serviceName, status, dateStr, officerNot
     var docs = await apiCall('/documents');
     var aadhaar = docs.find(function(d) { return d.document_type === 'aadhaar' && d.is_verified === 1; });
     if (aadhaar) {
-      var ed = typeof aadhaar.extracted_data === 'string' ? JSON.parse(aadhaar.extracted_data) : (aadhaar.extracted_data || {});
+      var ed = parseExtractedData(aadhaar);
       var addr = ed.address || '';
       var knownDistricts = ['Hyderabad','Ranga Reddy','Rangareddy','Medchal','Sangareddy','Warangal','Karimnagar','Nizamabad','Khammam','Nalgonda','Mahabubnagar','Adilabad','Siddipet'];
       for (var k = 0; k < knownDistricts.length; k++) {
@@ -942,8 +975,7 @@ function setupAuthHandlers() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken, mobile })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
+      const data = await safeParseResponse(res, 'Login failed');
 
       authToken = data.token;
       localStorage.setItem('citizen_token', authToken);
@@ -1032,8 +1064,7 @@ function setupAuthHandlers() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken: 'demo_mock_token', mobile })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
+      const data = await safeParseResponse(res, 'Login failed');
 
       authToken = data.token;
       localStorage.setItem('citizen_token', authToken);
@@ -1111,8 +1142,7 @@ function setupAuthHandlers() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ idToken: 'demo_mock_token', mobile })
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Login failed');
+        const data = await safeParseResponse(res, 'Login failed');
 
         authToken = data.token;
         localStorage.setItem('citizen_token', authToken);
@@ -1223,8 +1253,7 @@ function setupGoogleLogin() {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email })
         });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
+        const data = await safeParseResponse(res, 'Verification check failed');
         closeBottomSheet();
 
         if (data.status === 'new') {
@@ -1312,8 +1341,7 @@ function showGoogleSignupSheet(email) {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password: pw, displayName: '' })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const data = await safeParseResponse(res, 'Account creation failed');
 
       authToken = data.token;
       localStorage.setItem('citizen_token', authToken);
@@ -1372,8 +1400,7 @@ function showGoogleLoginSheet(email) {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password: pw })
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const data = await safeParseResponse(res, 'Authentication failed');
 
       authToken = data.token;
       localStorage.setItem('citizen_token', authToken);
@@ -1879,7 +1906,7 @@ async function loadDashboardData() {
       const nowMs = Date.now();
       docs.forEach(doc => {
         if (doc.is_verified === 1) {
-          const ed = typeof doc.extracted_data === 'string' ? JSON.parse(doc.extracted_data) : (doc.extracted_data || {});
+          const ed = parseExtractedData(doc);
           const expiryStr = ed.expiry || ed.validity_date || '';
           if (!expiryStr || expiryStr === 'Permanent') return;
           const parts = expiryStr.split('/');
@@ -3791,7 +3818,7 @@ async function showExistingAppReceipt(app) {
       var docs = await apiCall('/documents');
       var aadhaar = docs.find(function(d) { return d.document_type === 'aadhaar' && d.is_verified === 1; });
       if (aadhaar) {
-        var ed = typeof aadhaar.extracted_data === 'string' ? JSON.parse(aadhaar.extracted_data) : (aadhaar.extracted_data || {});
+        var ed = parseExtractedData(aadhaar);
         var addr = ed.address || '';
         var knownDistricts = ['Hyderabad','Ranga Reddy','Rangareddy','Medchal','Sangareddy','Warangal','Karimnagar','Nizamabad','Khammam','Nalgonda','Mahabubnagar','Adilabad','Siddipet'];
         for (var k = 0; k < knownDistricts.length; k++) {
@@ -4476,7 +4503,7 @@ async function loadNotifications() {
   if (docs && docs.length > 0) {
     docs.forEach(doc => {
       if (doc.is_verified) {
-        const ed = typeof doc.extracted_data === 'string' ? JSON.parse(doc.extracted_data) : (doc.extracted_data || {});
+        const ed = parseExtractedData(doc);
         const expiryStr = ed.expiry || ed.validity_date || '';
         if (!expiryStr || expiryStr === 'Permanent') return;
         const parts = expiryStr.split('/');
@@ -4749,7 +4776,7 @@ async function checkRenewalReminders() {
     
     docs.forEach(doc => {
       if (!doc.is_verified) return;
-      const ed = typeof doc.extracted_data === 'string' ? JSON.parse(doc.extracted_data) : (doc.extracted_data || {});
+      const ed = parseExtractedData(doc);
       const expiryStr = ed.expiry || ed.validity_date;
       if (!expiryStr || expiryStr === 'Permanent') return;
       
