@@ -82,6 +82,35 @@ const otpRouter = require('./routes/otp');
 const copilotRoutes = require('./routes/copilot');
 
 // Mount API Routes
+app.get('/api/diagnostic', async (req, res) => {
+  const report = {
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      VERCEL: process.env.VERCEL,
+      DATABASE_URL_SET: !!process.env.DATABASE_URL,
+      DATABASE_SSL: process.env.DATABASE_SSL
+    },
+    db: {}
+  };
+
+  try {
+    const db = require('./db');
+    await db.ensureInitialized();
+    report.db.status = 'initialized';
+    report.db.type = db.getDbType();
+    
+    const result = await db.query('SELECT 1 as test');
+    report.db.query = 'success';
+    report.db.result = result.rows;
+  } catch (err) {
+    report.db.status = 'error';
+    report.db.error = err.message;
+    report.db.stack = err.stack;
+  }
+
+  res.json(report);
+});
+
 app.use('/api/auth', authModule.router);
 app.use('/api/documents', documentsRouter);
 app.use('/api/services', servicesRouter);
