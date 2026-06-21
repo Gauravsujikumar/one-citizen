@@ -399,7 +399,6 @@
 
         // Documents — show both profile docs AND form-uploaded certificate files
         const docs = app.documents || app.attachments || [];
-        const formFields = app.form_data || app.formData || app.form || {};
         
         // Extract uploaded file paths from form_data
         const uploadedFiles = [];
