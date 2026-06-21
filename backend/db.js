@@ -122,6 +122,15 @@ async function query(text, params = []) {
 
 // Create database schemas and insert default data if tables are empty
 async function setupDatabase() {
+  // Fast-path: Skip schema recreation and migrations if the database is already fully initialized
+  try {
+    await rawQuery('SELECT 1 FROM users LIMIT 1');
+    console.log('[DB] Core database already initialized. Skipping setup.');
+    return;
+  } catch (err) {
+    console.log('[DB] Core database not initialized. Running schema setup...');
+  }
+
   const schemaPath = path.resolve(__dirname, 'schema.sql');
   let schemaSql = fs.readFileSync(schemaPath, 'utf8');
 

@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Run Startup Transition Sequence:
   // Phase 1 (OneCitizen logo) is active by default.
-  // Wait 1000ms, then transition to Phase 2 (Government of Telangana emblem)
+  // Wait 200ms, then transition to Phase 2 (Government of Telangana emblem)
   setTimeout(() => {
     const p1 = document.getElementById('splash-phase1');
     const p2 = document.getElementById('splash-phase2');
@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
       p2.classList.add('active');
     }
 
-    // Wait another 800ms, then transition to the Login Screen (or check token and load dashboard)
+    // Wait another 150ms, then transition to the Login Screen (or check token and load dashboard)
     setTimeout(() => {
       // Defer user location request until after splash screen completes
       requestUserLocation();
@@ -240,8 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         switchScreen('screen-login');
       }
-    }, 800);
-  }, 1000);
+    }, 150);
+  }, 200);
 
   // Floating Help Button click handler
   const btnHelp = document.getElementById('btn-floating-help');
