@@ -423,9 +423,8 @@
                 const docType = doc.type || doc.document_type || doc.name || 'Document';
                 const docStatus = doc.is_verified ? 'Verified' : (doc.status || doc.verification_status || 'Uploaded');
                 const filePath = doc.file_path || '';
-                const hrefUrl = (filePath && !filePath.startsWith('data:')) ? '/' + filePath : filePath;
                 const viewBtn = filePath 
-                    ? `<a href="${hrefUrl}" target="_blank" class="doc-view-btn" style="background:#1E40AF;color:#fff;padding:3px 10px;border-radius:4px;font-size:11px;text-decoration:none;font-weight:600;">View</a>` 
+                    ? `<button class="view-action-btn" data-filepath="${filePath}" style="background:#1E40AF;color:#fff;padding:3px 10px;border:none;cursor:pointer;border-radius:4px;font-size:11px;font-weight:600;">View</button>` 
                     : '';
 
                 return `
@@ -449,7 +448,7 @@
                 return `
                     <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9;">
                         <span style="font-size:12px;color:#1e293b;font-weight:500;">${escapeHTML(prettifyKey(f.name))}</span>
-                        <a href="${f.path}" target="_blank" style="background:#046A38;color:#fff;padding:3px 10px;border-radius:4px;font-size:11px;text-decoration:none;font-weight:600;">View File</a>
+                        <button class="view-action-btn" data-filepath="${f.path}" style="background:#046A38;color:#fff;padding:3px 10px;border:none;cursor:pointer;border-radius:4px;font-size:11px;font-weight:600;">View File</button>
                     </div>
                 `;
             }).join('');
@@ -458,6 +457,36 @@
 
         if (docsHtml) {
             els.documentsSection.innerHTML = docsHtml;
+            
+            // Bind click actions to view buttons to support Blob URLs and bypass browser security blocks on data URI navigation
+            els.documentsSection.querySelectorAll('.view-action-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const fp = e.currentTarget.getAttribute('data-filepath');
+                    if (!fp) return;
+                    
+                    if (fp.startsWith('data:')) {
+                        try {
+                            const parts = fp.split(',');
+                            const byteString = atob(parts[1]);
+                            const mimeString = parts[0].split(':')[1].split(';')[0];
+                            const ab = new ArrayBuffer(byteString.length);
+                            const ia = new Uint8Array(ab);
+                            for (let i = 0; i < byteString.length; i++) {
+                                ia[i] = byteString.charCodeAt(i);
+                            }
+                            const blob = new Blob([ab], {type: mimeString});
+                            const url = URL.createObjectURL(blob);
+                            window.open(url, '_blank');
+                        } catch (err) {
+                            console.error('Failed to open data URI:', err);
+                            window.open(fp, '_blank');
+                        }
+                    } else {
+                        const url = fp.startsWith('/') ? fp : '/' + fp;
+                        window.open(url, '_blank');
+                    }
+                });
+            });
         } else {
             els.documentsSection.innerHTML = '<p style="color:#9ca3af;font-size:.85rem;padding:10px 0;">No documents attached.</p>';
         }

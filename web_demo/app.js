@@ -2249,29 +2249,57 @@ function getDocumentTitle(type) {
   return mapping[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
-// Helper to generate preview HTML for both Base64 and relative path files
-function getDocumentPreviewHtml(fp) {
-  if (!fp) return '<p style="padding: 20px; font-size: 12px; color: #64748b;">No document file available.</p>';
-  var fileUrl = fp;
-  var isPdf = false;
-  var isImage = false;
+// Helper to parse file path/base64 data URI to a valid client-side rendering URL
+function resolveDocumentUrl(fp) {
+  if (!fp) return { url: '', isPdf: false, isImage: false };
   
   if (fp.startsWith('data:')) {
-    isPdf = fp.includes('application/pdf');
-    isImage = fp.includes('image/');
+    try {
+      var parts = fp.split(',');
+      var byteString = atob(parts[1]);
+      var mimeString = parts[0].split(':')[1].split(';')[0];
+      var ab = new ArrayBuffer(byteString.length);
+      var ia = new Uint8Array(ab);
+      for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      var blob = new Blob([ab], {type: mimeString});
+      var url = URL.createObjectURL(blob);
+      return {
+        url: url,
+        isPdf: mimeString.includes('pdf'),
+        isImage: mimeString.includes('image')
+      };
+    } catch (e) {
+      console.error('Failed to parse data URI to blob:', e);
+      return {
+        url: fp,
+        isPdf: fp.includes('application/pdf'),
+        isImage: fp.includes('image/')
+      };
+    }
   } else {
-    fileUrl = '/uploads/' + fp;
+    var url = (fp.startsWith('/') || fp.startsWith('http')) ? fp : '/uploads/' + fp;
     var ext = fp.split('.').pop().toLowerCase();
-    isPdf = (ext === 'pdf');
-    isImage = ['jpg','jpeg','png','gif','webp','bmp'].includes(ext);
+    return {
+      url: url,
+      isPdf: (ext === 'pdf'),
+      isImage: ['jpg','jpeg','png','gif','webp','bmp'].includes(ext)
+    };
   }
+}
+
+// Helper to generate preview HTML for both Base64 and relative path files
+function getDocumentPreviewHtml(fp) {
+  var resolved = resolveDocumentUrl(fp);
+  if (!resolved.url) return '<p style="padding: 20px; font-size: 12px; color: #64748b;">No document file available.</p>';
   
-  if (isImage) {
-    return '<div style="text-align:center;padding:8px 0;"><img src="' + fileUrl + '" style="max-width:100%;max-height:60vh;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);" alt="Document Preview"/></div>';
-  } else if (isPdf) {
-    return '<div style="padding:8px 0;"><iframe src="' + fileUrl + '" style="width:100%;height:60vh;border:none;border-radius:8px;"></iframe></div>';
+  if (resolved.isImage) {
+    return '<div style="text-align:center;padding:8px 0;"><img src="' + resolved.url + '" style="max-width:100%;max-height:60vh;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);" alt="Document Preview"/></div>';
+  } else if (resolved.isPdf) {
+    return '<div style="padding:8px 0;"><iframe src="' + resolved.url + '" style="width:100%;height:60vh;border:none;border-radius:8px;"></iframe></div>';
   } else {
-    return '<div style="text-align:center;padding:20px;"><a href="' + fileUrl + '" target="_blank" style="color:#1E40AF;font-weight:700;font-size:14px;">Download Document</a></div>';
+    return '<div style="text-align:center;padding:20px;"><a href="' + resolved.url + '" target="_blank" style="color:#1E40AF;font-weight:700;font-size:14px;">Download Document</a></div>';
   }
 }
 
@@ -2851,18 +2879,11 @@ function showOCRDetailsSheet(doc) {
       </button>
       <div id="scan-preview-container" style="display: none; margin-top: 12px; border-radius: 8px; overflow: hidden; border: 1px solid #CBD5E1; background: #F8FAFC; text-align: center;">
         ${(() => {
-          if (!uploadPath) return '<p style="padding: 20px; font-size: 12px; color: #64748b;">No document file available.</p>';
-          var srcUrl = uploadPath;
-          var isPdf = false;
-          if (uploadPath.startsWith('data:')) {
-            isPdf = uploadPath.includes('application/pdf');
-          } else {
-            srcUrl = window.location.origin + '/uploads/' + uploadPath;
-            isPdf = uploadPath.toLowerCase().endsWith('.pdf');
-          }
-          return isPdf 
-            ? `<iframe src="${srcUrl}" style="width: 100%; height: 220px; border: none;"></iframe>` 
-            : `<img src="${srcUrl}" style="max-width: 100%; max-height: 240px; object-fit: contain; padding: 8px;" />`;
+          var resolved = resolveDocumentUrl(uploadPath);
+          if (!resolved.url) return '<p style="padding: 20px; font-size: 12px; color: #64748b;">No document file available.</p>';
+          return resolved.isPdf 
+            ? `<iframe src="${resolved.url}" style="width: 100%; height: 220px; border: none;"></iframe>` 
+            : `<img src="${resolved.url}" style="max-width: 100%; max-height: 240px; object-fit: contain; padding: 8px;" />`;
         })()}
       </div>
     </div>
