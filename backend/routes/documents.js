@@ -25,17 +25,26 @@ function getDocTypeLabel(type) {
 }
 
 // Setup File Upload Storage
-// Vercel serverless has no persistent disk — use memoryStorage (file stays as buffer in RAM)
-// Locally — use diskStorage for development convenience
 const isVercel = !!process.env.VERCEL;
+
+// Resolve correct uploads directory (handles read-only Vercel filesystem)
+let uploadsDir = path.resolve(__dirname, '../uploads');
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (err) {
+  uploadsDir = path.join(os.tmpdir(), 'uploads');
+  if (!fs.existsSync(uploadsDir)) {
+    try {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    } catch (tmpErr) {}
+  }
+}
 
 const diskStorageConfig = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = path.resolve(__dirname, '../uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
+    cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -89,6 +98,16 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
   const storedFileName = getFileName(req.file);
   const documentId = 'doc_' + Math.random().toString(36).substr(2, 9);
 
+  // Write file buffer to the uploads directory for memoryStorage (Vercel)
+  if (req.file.buffer) {
+    try {
+      const destPath = path.join(uploadsDir, storedFileName);
+      fs.writeFileSync(destPath, req.file.buffer);
+    } catch (writeErr) {
+      console.error('[Upload] Failed to save file to uploads directory:', writeErr.message);
+    }
+  }
+
   try {
     // 1. Fetch citizen profile to inform fallback OCR if needed
     const profile = await firestore.getProfile(req.user.id);
@@ -116,7 +135,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
       // Replace existing document of same type
       const existingPhotoDocs = await firestore.getDocumentsByType(req.user.id, document_type);
       for (const oldDoc of existingPhotoDocs) {
-        const oldFilePath = path.resolve(__dirname, '../uploads', oldDoc.file_path);
+        const oldFilePath = path.join(uploadsDir, oldDoc.file_path);
         try { fs.unlinkSync(oldFilePath); } catch (e) {}
         await firestore.deleteDocument(req.user.id, oldDoc.id);
       }
@@ -147,7 +166,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
       // Replace existing document of same type
       const existingSkipDocs = await firestore.getDocumentsByType(req.user.id, document_type);
       for (const oldDoc of existingSkipDocs) {
-        const oldFilePath = path.resolve(__dirname, '../uploads', oldDoc.file_path);
+        const oldFilePath = path.join(uploadsDir, oldDoc.file_path);
         try { fs.unlinkSync(oldFilePath); } catch (e) {}
         await firestore.deleteDocument(req.user.id, oldDoc.id);
       }
@@ -407,7 +426,7 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
     // Replace existing document of same type (one document per type)
     const existingOcrDocs = await firestore.getDocumentsByType(req.user.id, document_type);
     for (const oldDoc of existingOcrDocs) {
-      const oldFilePath = path.resolve(__dirname, '../uploads', oldDoc.file_path);
+      const oldFilePath = path.join(uploadsDir, oldDoc.file_path);
       try { fs.unlinkSync(oldFilePath); } catch (e) { /* file may already be gone */ }
       await firestore.deleteDocument(req.user.id, oldDoc.id);
     }
@@ -499,7 +518,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 
     // Attempt to delete physical file
     if (doc.file_path) {
-      const filePath = path.resolve(__dirname, '../uploads', doc.file_path);
+      const filePath = path.join(uploadsDir, doc.file_path);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
 
