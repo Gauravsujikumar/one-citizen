@@ -112,7 +112,7 @@ ON CONFLICT (email) DO NOTHING;
 
 -- Government Services
 INSERT INTO services (name, category, eligibility_rules, required_documents, fees, processing_time, steps) VALUES
-('Income Certificate', 'certificate', '{"min_age": 18, "required_docs": ["aadhaar", "income"]}', '["aadhaar", "income"]', 35, '7-10 days', '["Fill application", "Upload documents", "Pay fees", "Visit MeeSeva"]'),
+('Income Certificate', 'certificate', '{"min_age": 18, "required_docs": ["aadhaar", "passport_size_photo"]}', '["aadhaar", "passport_size_photo"]', 35, '7-10 days', '["Fill application", "Upload documents", "Pay fees", "Visit MeeSeva"]'),
 ('Caste Certificate', 'certificate', '{"min_age": 18, "required_docs": ["aadhaar", "caste"]}', '["aadhaar", "caste"]', 25, '7-14 days', '["Fill application", "Upload documents", "Pay fees", "Visit MeeSeva"]'),
 ('OBC Certificate', 'certificate', '{"min_age": 18, "required_docs": ["aadhaar"]}', '["aadhaar"]', 25, '7-14 days', '["Fill application", "Upload documents", "Pay fees", "Visit MeeSeva"]'),
 ('Birth Certificate', 'certificate', '{"required_docs": ["aadhaar"]}', '["aadhaar", "birth"]', 50, '5-7 days', '["Fill application", "Upload documents", "Pay fees", "Visit MeeSeva"]'),

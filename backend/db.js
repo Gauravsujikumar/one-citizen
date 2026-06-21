@@ -31,6 +31,20 @@ async function initDb() {
       await pgPool.query('SELECT NOW()');
       dbType = 'postgres';
       console.log('[DB] Successfully connected to PostgreSQL (Neon).');
+
+      // Auto-rectify Income Certificate required documents if incorrect
+      try {
+        await pgPool.query(`
+          UPDATE services 
+          SET required_documents = '["aadhaar", "passport_size_photo"]', 
+              eligibility_rules = '{"min_age": 18, "required_docs": ["aadhaar", "passport_size_photo"]}' 
+          WHERE name = 'Income Certificate' 
+            AND required_documents LIKE '%income%'
+        `);
+        console.log('[DB] Checked/updated Income Certificate required documents.');
+      } catch (rectifyErr) {
+        console.warn('[DB] Failed to run Income Certificate required documents update:', rectifyErr.message);
+      }
     } catch (err) {
       console.error('[DB] PostgreSQL connection FAILED:', err.message);
       if (process.env.VERCEL) {
