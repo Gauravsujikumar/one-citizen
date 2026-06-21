@@ -2249,6 +2249,32 @@ function getDocumentTitle(type) {
   return mapping[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
+// Helper to generate preview HTML for both Base64 and relative path files
+function getDocumentPreviewHtml(fp) {
+  if (!fp) return '<p style="padding: 20px; font-size: 12px; color: #64748b;">No document file available.</p>';
+  var fileUrl = fp;
+  var isPdf = false;
+  var isImage = false;
+  
+  if (fp.startsWith('data:')) {
+    isPdf = fp.includes('application/pdf');
+    isImage = fp.includes('image/');
+  } else {
+    fileUrl = '/uploads/' + fp;
+    var ext = fp.split('.').pop().toLowerCase();
+    isPdf = (ext === 'pdf');
+    isImage = ['jpg','jpeg','png','gif','webp','bmp'].includes(ext);
+  }
+  
+  if (isImage) {
+    return '<div style="text-align:center;padding:8px 0;"><img src="' + fileUrl + '" style="max-width:100%;max-height:60vh;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);" alt="Document Preview"/></div>';
+  } else if (isPdf) {
+    return '<div style="padding:8px 0;"><iframe src="' + fileUrl + '" style="width:100%;height:60vh;border:none;border-radius:8px;"></iframe></div>';
+  } else {
+    return '<div style="text-align:center;padding:20px;"><a href="' + fileUrl + '" target="_blank" style="color:#1E40AF;font-weight:700;font-size:14px;">Download Document</a></div>';
+  }
+}
+
 // 8. Document Vault Renders (Compact Vertical List)
 async function loadVaultItems() {
   const container = document.getElementById('vault-items-container');
@@ -2329,16 +2355,7 @@ async function loadVaultItems() {
           e.stopPropagation();
           const fp = e.currentTarget.getAttribute('data-filepath');
           if (!fp) { showToast('No file available to view', 'warning'); return; }
-          const fileUrl = '/uploads/' + fp;
-          const ext = fp.split('.').pop().toLowerCase();
-          let previewHtml = '';
-          if (['jpg','jpeg','png','gif','webp','bmp'].includes(ext)) {
-            previewHtml = `<div style="text-align:center;padding:8px 0;"><img src="${fileUrl}" style="max-width:100%;max-height:60vh;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);" alt="Document Preview"/></div>`;
-          } else if (ext === 'pdf') {
-            previewHtml = `<div style="padding:8px 0;"><iframe src="${fileUrl}" style="width:100%;height:60vh;border:none;border-radius:8px;"></iframe></div>`;
-          } else {
-            previewHtml = `<div style="text-align:center;padding:20px;"><a href="${fileUrl}" target="_blank" style="color:#1E40AF;font-weight:700;font-size:14px;">Download Document</a></div>`;
-          }
+          let previewHtml = getDocumentPreviewHtml(fp);
           previewHtml += `<button class="btn btn-primary" onclick="closeBottomSheet()" style="width:100%;margin-top:10px;font-weight:700;background:#046A38 !important;border:none !important;">Close</button>`;
           openBottomSheet(getDocumentTitle(doc.document_type), previewHtml);
         });
@@ -2833,11 +2850,20 @@ function showOCRDetailsSheet(doc) {
         Show Uploaded Document
       </button>
       <div id="scan-preview-container" style="display: none; margin-top: 12px; border-radius: 8px; overflow: hidden; border: 1px solid #CBD5E1; background: #F8FAFC; text-align: center;">
-        ${uploadPath ? (
-          uploadPath.toLowerCase().endsWith('.pdf') 
-            ? `<iframe src="${window.location.origin}/uploads/${uploadPath}" style="width: 100%; height: 220px; border: none;"></iframe>` 
-            : `<img src="${window.location.origin}/uploads/${uploadPath}" style="max-width: 100%; max-height: 240px; object-fit: contain; padding: 8px;" />`
-        ) : `<p style="padding: 20px; font-size: 12px; color: #64748b;">No document file available.</p>`}
+        ${(() => {
+          if (!uploadPath) return '<p style="padding: 20px; font-size: 12px; color: #64748b;">No document file available.</p>';
+          var srcUrl = uploadPath;
+          var isPdf = false;
+          if (uploadPath.startsWith('data:')) {
+            isPdf = uploadPath.includes('application/pdf');
+          } else {
+            srcUrl = window.location.origin + '/uploads/' + uploadPath;
+            isPdf = uploadPath.toLowerCase().endsWith('.pdf');
+          }
+          return isPdf 
+            ? `<iframe src="${srcUrl}" style="width: 100%; height: 220px; border: none;"></iframe>` 
+            : `<img src="${srcUrl}" style="max-width: 100%; max-height: 240px; object-fit: contain; padding: 8px;" />`;
+        })()}
       </div>
     </div>
   `;
@@ -3404,16 +3430,7 @@ async function showServiceDetails(s) {
         ev.stopPropagation();
         var fp = this.getAttribute('data-fp');
         var dn = this.getAttribute('data-docname') || 'Document';
-        var fileUrl = '/uploads/' + fp;
-        var ext = fp.split('.').pop().toLowerCase();
-        var previewHtml = '';
-        if (['jpg','jpeg','png','gif','webp','bmp'].includes(ext)) {
-          previewHtml = '<div style="text-align:center;padding:8px 0;"><img src="' + fileUrl + '" style="max-width:100%;max-height:60vh;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);" alt="Preview"/></div>';
-        } else if (ext === 'pdf') {
-          previewHtml = '<div style="padding:8px 0;"><iframe src="' + fileUrl + '" style="width:100%;height:60vh;border:none;border-radius:8px;"></iframe></div>';
-        } else {
-          previewHtml = '<div style="text-align:center;padding:20px;"><a href="' + fileUrl + '" target="_blank" style="color:#1E40AF;font-weight:700;">Download</a></div>';
-        }
+        var previewHtml = getDocumentPreviewHtml(fp);
         previewHtml += '<button class="btn btn-primary" onclick="closeBottomSheet()" style="width:100%;margin-top:10px;font-weight:700;background:#046A38 !important;border:none !important;">Close</button>';
         openBottomSheet(dn, previewHtml);
       });
@@ -3449,16 +3466,7 @@ async function showServiceDetails(s) {
           viewBtn.addEventListener('click', function(ev) {
             ev.stopPropagation();
             var fp = this.getAttribute('data-fp');
-            var fileUrl = '/uploads/' + fp;
-            var ext = fp.split('.').pop().toLowerCase();
-            var previewHtml = '';
-            if (['jpg','jpeg','png','gif','webp','bmp'].includes(ext)) {
-              previewHtml = '<div style="text-align:center;padding:8px 0;"><img src="' + fileUrl + '" style="max-width:100%;max-height:60vh;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);" alt="Preview"/></div>';
-            } else if (ext === 'pdf') {
-              previewHtml = '<div style="padding:8px 0;"><iframe src="' + fileUrl + '" style="width:100%;height:60vh;border:none;border-radius:8px;"></iframe></div>';
-            } else {
-              previewHtml = '<div style="text-align:center;padding:20px;"><a href="' + fileUrl + '" target="_blank" style="color:#1E40AF;font-weight:700;">Download</a></div>';
-            }
+            var previewHtml = getDocumentPreviewHtml(fp);
             previewHtml += '<button class="btn btn-primary" onclick="closeBottomSheet()" style="width:100%;margin-top:10px;font-weight:700;background:#046A38 !important;border:none !important;">Close</button>';
             openBottomSheet(docName, previewHtml);
           });
@@ -5366,16 +5374,7 @@ function closeBottomSheet() {
         ev.stopPropagation();
         var fp = this.getAttribute('data-fp');
         var dn = this.getAttribute('data-docname') || 'Document';
-        var fileUrl = '/uploads/' + fp;
-        var ext = fp.split('.').pop().toLowerCase();
-        var previewHtml = '';
-        if (['jpg','jpeg','png','gif','webp','bmp'].includes(ext)) {
-          previewHtml = '<div style="text-align:center;padding:8px 0;"><img src="' + fileUrl + '" style="max-width:100%;max-height:60vh;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.15);" alt="Preview"/></div>';
-        } else if (ext === 'pdf') {
-          previewHtml = '<div style="padding:8px 0;"><iframe src="' + fileUrl + '" style="width:100%;height:60vh;border:none;border-radius:8px;"></iframe></div>';
-        } else {
-          previewHtml = '<div style="text-align:center;padding:20px;"><a href="' + fileUrl + '" target="_blank" style="color:#1E40AF;font-weight:700;">Download</a></div>';
-        }
+        var previewHtml = getDocumentPreviewHtml(fp);
         previewHtml += '<button class="btn btn-primary" onclick="closeBottomSheet()" style="width:100%;margin-top:10px;font-weight:700;background:#046A38 !important;border:none !important;">Close</button>';
         openBottomSheet(dn, previewHtml);
       });

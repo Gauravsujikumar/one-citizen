@@ -93,11 +93,15 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
 
   const isTempFile = !!req.file.buffer;
   const filePath = getFilePath(req.file);
-  const storedFileName = getFileName(req.file);
+  let storedFileName = getFileName(req.file);
+  if (req.file.buffer) {
+    const base64Data = req.file.buffer.toString('base64');
+    storedFileName = `data:${req.file.mimetype};base64,${base64Data}`;
+  }
   const documentId = 'doc_' + Math.random().toString(36).substr(2, 9);
 
   // Write file buffer to the uploads directory for memoryStorage (Vercel)
-  if (req.file.buffer) {
+  if (req.file.buffer && !storedFileName.startsWith('data:')) {
     try {
       const destPath = path.join(uploadsDir, storedFileName);
       fs.writeFileSync(destPath, req.file.buffer);
@@ -133,8 +137,10 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
       // Replace existing document of same type
       const existingPhotoDocs = await firestore.getDocumentsByType(req.user.id, document_type);
       for (const oldDoc of existingPhotoDocs) {
-        const oldFilePath = path.join(uploadsDir, oldDoc.file_path);
-        try { fs.unlinkSync(oldFilePath); } catch (e) {}
+        if (oldDoc.file_path && !oldDoc.file_path.startsWith('data:')) {
+          const oldFilePath = path.join(uploadsDir, oldDoc.file_path);
+          try { fs.unlinkSync(oldFilePath); } catch (e) {}
+        }
         await firestore.deleteDocument(req.user.id, oldDoc.id);
       }
 
@@ -164,8 +170,10 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
       // Replace existing document of same type
       const existingSkipDocs = await firestore.getDocumentsByType(req.user.id, document_type);
       for (const oldDoc of existingSkipDocs) {
-        const oldFilePath = path.join(uploadsDir, oldDoc.file_path);
-        try { fs.unlinkSync(oldFilePath); } catch (e) {}
+        if (oldDoc.file_path && !oldDoc.file_path.startsWith('data:')) {
+          const oldFilePath = path.join(uploadsDir, oldDoc.file_path);
+          try { fs.unlinkSync(oldFilePath); } catch (e) {}
+        }
         await firestore.deleteDocument(req.user.id, oldDoc.id);
       }
 
@@ -424,8 +432,10 @@ router.post('/upload', authenticateToken, upload.single('document'), async (req,
     // Replace existing document of same type (one document per type)
     const existingOcrDocs = await firestore.getDocumentsByType(req.user.id, document_type);
     for (const oldDoc of existingOcrDocs) {
-      const oldFilePath = path.join(uploadsDir, oldDoc.file_path);
-      try { fs.unlinkSync(oldFilePath); } catch (e) { /* file may already be gone */ }
+      if (oldDoc.file_path && !oldDoc.file_path.startsWith('data:')) {
+        const oldFilePath = path.join(uploadsDir, oldDoc.file_path);
+        try { fs.unlinkSync(oldFilePath); } catch (e) { /* file may already be gone */ }
+      }
       await firestore.deleteDocument(req.user.id, oldDoc.id);
     }
 
@@ -515,7 +525,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     await firestore.deleteDocument(req.user.id, req.params.id);
 
     // Attempt to delete physical file
-    if (doc.file_path) {
+    if (doc.file_path && !doc.file_path.startsWith('data:')) {
       const filePath = path.join(uploadsDir, doc.file_path);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }

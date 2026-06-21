@@ -405,8 +405,12 @@
         const uploadedFiles = [];
         if (typeof formFields === 'object') {
             for (const [key, val] of Object.entries(formFields)) {
-                if (typeof val === 'string' && (val.startsWith('uploads/') || val.startsWith('/uploads/'))) {
-                    uploadedFiles.push({ name: key, path: val.startsWith('/') ? val : '/' + val });
+                if (typeof val === 'string') {
+                    if (val.startsWith('uploads/') || val.startsWith('/uploads/')) {
+                        uploadedFiles.push({ name: key, path: val.startsWith('/') ? val : '/' + val });
+                    } else if (val.startsWith('data:')) {
+                        uploadedFiles.push({ name: key, path: val });
+                    }
                 }
             }
         }
@@ -419,8 +423,9 @@
                 const docType = doc.type || doc.document_type || doc.name || 'Document';
                 const docStatus = doc.is_verified ? 'Verified' : (doc.status || doc.verification_status || 'Uploaded');
                 const filePath = doc.file_path || '';
+                const hrefUrl = (filePath && !filePath.startsWith('data:')) ? '/' + filePath : filePath;
                 const viewBtn = filePath 
-                    ? `<a href="/${filePath}" target="_blank" class="doc-view-btn" style="background:#1E40AF;color:#fff;padding:3px 10px;border-radius:4px;font-size:11px;text-decoration:none;font-weight:600;">View</a>` 
+                    ? `<a href="${hrefUrl}" target="_blank" class="doc-view-btn" style="background:#1E40AF;color:#fff;padding:3px 10px;border-radius:4px;font-size:11px;text-decoration:none;font-weight:600;">View</a>` 
                     : '';
 
                 return `
