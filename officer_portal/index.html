@@ -45,126 +45,99 @@
                 <path d="M110,20 C125,15 140,30 145,45 C150,55 160,58 165,68 C172,78 185,85 180,98 C175,108 165,115 158,125 C150,135 142,142 130,150 C120,158 115,168 105,178 C98,185 85,188 78,178 C70,168 62,158 55,150 C48,142 35,135 32,122 C30,110 38,98 35,88 C32,78 20,70 25,58 C30,48 42,45 52,38 C62,30 75,32 88,25 Z" stroke="#0A5237" stroke-width="1.2" stroke-linejoin="round"/>
             </svg>
         </div>
-
         <div class="login-wrapper">
-            <!-- Branding Header -->
-            <div class="branding-header">
-                <div class="logo-wrap">
-                    <!-- OneCitizen High-Fidelity Emblem -->
-                    <svg class="gov-logo" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="40" cy="40" r="38" stroke="#0A5237" stroke-width="2"/>
-                        <path d="M28 55 V30 C28 22 52 22 52 30 V55" stroke="#0A5237" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M22 55 H58" stroke="#0A5237" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M40 26 C34 26 32 30 32 36 C32 46 40 50 40 50 C40 50 48 46 48 36 C48 30 46 26 40 26 Z" fill="#0A5237" opacity="0.15"/>
-                        <path d="M40 26 C34 26 32 30 32 36 C32 46 40 50 40 50 C40 50 48 46 48 36 C48 30 46 26 40 26 Z" stroke="#0A5237" stroke-width="1.5"/>
-                        <path d="M38 34 H40 V44 M37 44 H43" stroke="#0A5237" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M22 48 C20 42 22 36 26 32" stroke="#D32F2F" stroke-width="1.5" stroke-linecap="round"/>
-                        <path d="M58 48 C60 42 58 36 54 32" stroke="#D32F2F" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                </div>
-                <h2><span class="one-text">One</span><span class="citizen-text">Citizen</span></h2>
-                <p class="gov-desc">AI POWERED CITIZEN SERVICES</p>
-                <p class="gov-state">GOVERNMENT OF TELANGANA</p>
-                <div class="gov-dots">
-                    <span class="dot orange"></span>
-                    <span class="dot white"></span>
-                    <span class="dot green"></span>
-                </div>
-                
-                <div class="emblem-divider">
-                    <span class="divider-line"></span>
-                    <svg class="star-badge" viewBox="0 0 24 24" fill="#0A5237">
-                        <polygon points="12 2 15 8.5 22 9.5 17 14.5 18.5 21.5 12 18 5.5 21.5 7 14.5 2 9.5 9 8.5"/>
-                    </svg>
-                    <span class="divider-line"></span>
-                </div>
-                
-                <h1 class="portal-title">OFFICER PORTAL</h1>
-                <p class="portal-subtitle">Government Services Simplified</p>
-            </div>
-
-            <!-- Login Card -->
-            <div class="login-card">
-                <div class="card-header">
-                    <div class="header-title">
-                        <h3>Officer Login</h3>
-                        <span class="header-line"></span>
-                    </div>
-                    <div class="header-badge-icon">
-                        <!-- Shield profile icon -->
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#0A5237" stroke-width="2">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                            <circle cx="12" cy="11" r="3"/>
-                            <path d="M8 17c0-2 2-3 4-3s4 1 4 3"/>
-                        </svg>
+            <!-- Modern Split Card Layout -->
+            <div class="login-split-card">
+                <!-- Left Panel: Logo Showcase -->
+                <div class="login-left-panel">
+                    <div class="logo-showcase">
+                        <img src="/officer/app_logo.jpg" alt="OneCitizen Telangana" class="login-logo-img">
                     </div>
                 </div>
 
-                <form id="loginForm" autocomplete="on">
-                    <div class="form-group">
-                        <div class="input-icon-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="#0A5237" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                <circle cx="12" cy="7" r="4"/>
+                <!-- Right Panel: Login Fields -->
+                <div class="login-right-panel">
+                    <div class="card-header">
+                        <div class="header-title">
+                            <h3>Officer Login</h3>
+                            <span class="header-line"></span>
+                        </div>
+                        <div class="header-badge-icon">
+                            <!-- Shield profile icon -->
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#0A5237" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                <circle cx="12" cy="11" r="3"/>
+                                <path d="M8 17c0-2 2-3 4-3s4 1 4 3"/>
                             </svg>
-                            <input type="email" id="loginEmail" placeholder="Officer ID / Username" required autocomplete="email">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="input-icon-wrapper">
-                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="#0A5237" stroke-width="2">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                            </svg>
-                            <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
-                            <button type="button" class="toggle-password" aria-label="Toggle password visibility" onclick="togglePassword()">
-                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                    <circle cx="12" cy="12" r="3"/>
+
+                    <form id="loginForm" autocomplete="on">
+                        <div class="form-group">
+                            <div class="input-icon-wrapper">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="#0A5237" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
                                 </svg>
-                            </button>
+                                <input type="email" id="loginEmail" placeholder="Officer ID / Username" required autocomplete="email">
+                            </div>
                         </div>
+                        <div class="form-group">
+                            <div class="input-icon-wrapper">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="#0A5237" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                                <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
+                                <button type="button" class="toggle-password" aria-label="Toggle password visibility" onclick="togglePassword()">
+                                    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-options">
+                            <label class="remember-me">
+                                <input type="checkbox" id="rememberMe">
+                                <span>Remember me</span>
+                            </label>
+                            <a href="#" class="forgot-link">Forgot Password?</a>
+                        </div>
+                        
+                        <div id="loginError" class="login-error" role="alert"></div>
+                        
+                        <button type="submit" class="btn-login" id="loginBtn">
+                            <span class="btn-text">
+                                <!-- arrow-in-right icon -->
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+                                </svg>
+                                <span>LOGIN</span>
+                            </span>
+                            <span class="btn-loader" hidden>
+                                <svg class="spinner" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"/>
+                                </svg>
+                            </span>
+                        </button>
+                    </form>
+
+                    <div class="divider">
+                        <span class="divider-line"></span>
+                        <span class="divider-text">OR</span>
+                        <span class="divider-line"></span>
                     </div>
 
-                    <div class="form-options">
-                        <label class="remember-me">
-                            <input type="checkbox" id="rememberMe">
-                            <span>Remember me</span>
-                        </label>
-                        <a href="#" class="forgot-link">Forgot Password?</a>
-                    </div>
-                    
-                    <div id="loginError" class="login-error" role="alert"></div>
-                    
-                    <button type="submit" class="btn-login" id="loginBtn">
-                        <span class="btn-text">
-                            <!-- arrow-in-right icon -->
-                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
-                            </svg>
-                            <span>LOGIN</span>
-                        </span>
-                        <span class="btn-loader" hidden>
-                            <svg class="spinner" viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"/>
-                            </svg>
-                        </span>
+                    <button type="button" class="btn-sso" id="ssoBtn">
+                        <svg class="sso-icon" viewBox="0 0 24 24" fill="none" stroke="#0A5237" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <span>Login with Government SSO</span>
                     </button>
-                </form>
-
-                <div class="divider">
-                    <span class="divider-line"></span>
-                    <span class="divider-text">OR</span>
-                    <span class="divider-line"></span>
                 </div>
-
-                <button type="button" class="btn-sso" id="ssoBtn">
-                    <svg class="sso-icon" viewBox="0 0 24 24" fill="none" stroke="#0A5237" stroke-width="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                    <span>Login with Government SSO</span>
-                </button>
             </div>
 
             <!-- Footer Badges -->

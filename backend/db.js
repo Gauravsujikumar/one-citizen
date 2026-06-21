@@ -65,6 +65,7 @@ async function initDb() {
 
   // Setup tables and seed data
   await setupDatabase();
+  await ensureSeedUsers();
 }
 
 // Ensure DB is fully initialized before any query (prevents race conditions on Vercel cold starts)
@@ -417,9 +418,44 @@ async function seedDefaultData() {
   }
 }
 
+async function ensureSeedUsers() {
+  const bcrypt = require('bcryptjs');
+  
+  // Seed officer@onecitizen.gov.in
+  try {
+    const res = await rawQuery("SELECT * FROM users WHERE email = $1", ['officer@onecitizen.gov.in']);
+    if (res.rowCount === 0) {
+      console.log('[DB] Seeding officer@onecitizen.gov.in...');
+      const hash = await bcrypt.hash('officer123', 10);
+      await rawQuery(
+        "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3)",
+        ['officer@onecitizen.gov.in', hash, 'admin']
+      );
+    }
+  } catch (err) {
+    console.error('[DB] Failed to seed officer@onecitizen.gov.in:', err.message);
+  }
+
+  // Seed officer@gov.in
+  try {
+    const res = await rawQuery("SELECT * FROM users WHERE email = $1", ['officer@gov.in']);
+    if (res.rowCount === 0) {
+      console.log('[DB] Seeding officer@gov.in...');
+      const hash = await bcrypt.hash('officer123', 10);
+      await rawQuery(
+        "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3)",
+        ['officer@gov.in', hash, 'admin']
+      );
+    }
+  } catch (err) {
+    console.error('[DB] Failed to seed officer@gov.in:', err.message);
+  }
+}
+
 module.exports = {
   initDb,
   ensureInitialized,
   query,
-  getDbType: () => dbType
+  getDbType: () => dbType,
+  ensureSeedUsers
 };
