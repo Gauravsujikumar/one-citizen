@@ -1469,10 +1469,19 @@
 
   async function safeParseResponse(response, defaultErrorMsg) {
     var contentType = response.headers.get('content-type');
-    if (contentType && contentType.indexOf('application/json') !== -1) {
+    var isJson = contentType && contentType.indexOf('application/json') !== -1;
+    if (isJson) {
       try {
-        return await response.json();
-      } catch (e) {}
+        var data = await response.json();
+        if (!response.ok) {
+          throw new Error(defaultErrorMsg + ` (Status ${response.status}): ${data.error || data.message || 'Unknown error'}`);
+        }
+        return data;
+      } catch (e) {
+        if (e.message && e.message.startsWith(defaultErrorMsg)) {
+          throw e;
+        }
+      }
     }
     var text = await response.text();
     if (!response.ok) {
