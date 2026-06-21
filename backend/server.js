@@ -26,10 +26,11 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5000', 'http://127.0.0.1:5000', 'http://localhost:8000', 'http://127.0.0.1:8000'];
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+    const isVercel = process.env.VERCEL || (origin && (origin.endsWith('.vercel.app') || origin.includes('vercel.app')));
+    if (!origin || allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development' || isVercel) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error('Not allowed by CORS: ' + origin));
     }
   }
 }));
