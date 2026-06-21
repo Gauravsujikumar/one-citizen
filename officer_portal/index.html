@@ -3,76 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OneCitizen — Officer Verification Portal</title>
+    <title>OneCitizen AI — Officer Verification Portal | Government of Telangana</title>
+    <meta name="description" content="Secure officer verification portal for Government of Telangana. Authorized personnel only.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/officer/style.css">
 </head>
 <body>
 
     <!-- ===== LOGIN SCREEN ===== -->
     <div id="loginScreen" class="login-screen">
-        <!-- Watermark Backgrounds -->
-        <div class="watermark watermark-left">
-            <!-- Charminar transparent watermark PNG -->
-            <img src="/officer/charminar_light.png" alt="Charminar Landmark" class="watermark-img">
-        </div>
-        <div class="watermark watermark-right">
-            <!-- Warangal Arch transparent watermark PNG -->
-            <img src="/officer/warangal_arch_light.png" alt="Warangal Arch Landmark" class="watermark-img">
-        </div>
-        <div class="login-wrapper">
-            <!-- Modern Split Card Layout -->
-            <div class="login-split-card">
-                <!-- Left Panel: Logo Showcase -->
-                <div class="login-left-panel">
-                    <div class="gov-badge-header">
-                        <img src="/officer/telangana_logo.jpg" alt="Government of Telangana Emblem" class="gov-emblem-img">
-                        <span class="gov-emblem-title">GOVERNMENT OF TELANGANA</span>
-                        <span class="gov-emblem-subtitle">OFFICER VERIFICATION PORTAL</span>
-                    </div>
-                    <div class="logo-showcase">
-                        <img src="/officer/app_logo.jpg" alt="OneCitizen Telangana" class="login-logo-img">
+
+        <!-- ── TOP NAV BAR ── -->
+        <nav class="login-topnav">
+            <div class="topnav-left">
+                <img src="/officer/telangana_logo.jpg" alt="Government of Telangana" class="topnav-emblem">
+                <div class="topnav-brand">
+                    <span class="topnav-title">Government of Telangana</span>
+                    <span class="topnav-sub">Official Portal</span>
+                </div>
+            </div>
+            <div class="topnav-right">
+                <span class="topnav-status">
+                    <span class="status-dot"></span>
+                    System Status: <strong>Operational</strong>
+                </span>
+            </div>
+        </nav>
+
+        <!-- ── MAIN CONTENT ── -->
+        <main class="login-main">
+
+            <!-- Left Branding Side -->
+            <div class="login-branding">
+
+                <!-- Monument watermark behind branding -->
+                <div class="branding-watermark">
+                    <img src="/officer/charminar_light.svg" alt="" class="branding-watermark-img">
+                </div>
+
+                <!-- Logo area -->
+                <div class="brand-logo-block">
+                    <img src="/officer/app_logo.jpg" alt="OneCitizen Telangana" class="brand-logo-img">
+                    <p class="brand-powered">— AI POWERED CITIZEN SERVICES —</p>
+                    <p class="brand-gov">GOVERNMENT OF TELANGANA</p>
+                    <div class="brand-dots">
+                        <span class="brand-dot dot-green"></span>
+                        <span class="brand-dot dot-green"></span>
+                        <span class="brand-dot dot-red"></span>
                     </div>
                 </div>
 
-                <!-- Right Panel: Login Fields -->
-                <div class="login-right-panel">
-                    <div class="card-header">
-                        <div class="header-title">
-                            <h3>Officer Login</h3>
-                            <span class="header-line"></span>
-                        </div>
-                        <div class="header-badge-icon">
-                            <!-- Shield profile icon -->
-                            <svg viewBox="0 0 24 24" fill="none" stroke="#0A5237" stroke-width="2">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                                <circle cx="12" cy="11" r="3"/>
-                                <path d="M8 17c0-2 2-3 4-3s4 1 4 3"/>
+                <!-- Portal Title -->
+                <div class="brand-title-block">
+                    <h1 class="brand-title">OneCitizen AI<br>Officer Verification Portal</h1>
+                    <div class="brand-divider">
+                        <span class="brand-divider-line"></span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#046A38" stroke-width="2" class="brand-shield">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <circle cx="12" cy="11" r="3"/>
+                            <path d="M8 17c0-2 2-3 4-3s4 1 4 3"/>
+                        </svg>
+                        <span class="brand-divider-line"></span>
+                    </div>
+                    <p class="brand-desc">A secure platform for government officers to<br>verify, approve and manage citizen applications.</p>
+                </div>
+
+                <!-- Branding Illustration Graphic -->
+                <div class="brand-illustration-container">
+                    <img src="/officer/digital_twin_graphics.png" alt="OneCitizen AI Platform Illustration" class="brand-illustration-img">
+                </div>
+
+                <!-- Portal Features Info Block -->
+                <div class="portal-features">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
                             </svg>
                         </div>
+                        <div class="feature-text">
+                            <strong>AI-Assisted Verification</strong>
+                            <span>Automated document reading & readiness scoring</span>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <div class="feature-text">
+                            <strong>Real-Time Application Queue</strong>
+                            <span>Live monitoring and instant application routing</span>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                <path d="M12 8v4"/>
+                                <path d="M12 16h.01"/>
+                            </svg>
+                        </div>
+                        <div class="feature-text">
+                            <strong>Secured Audit Trails</strong>
+                            <span>All actions are logged securely under state guidelines</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Notice -->
+                <div class="security-notice">
+                    <div class="security-notice-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#046A38" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <polyline points="9 11 11 13 15 9"/>
+                        </svg>
+                    </div>
+                    <div class="security-notice-text">
+                        <strong>This is a secure government system.</strong>
+                        <span>All activities are monitored and audited.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Login Card -->
+            <div class="login-card-wrap">
+                <div class="login-card">
+
+                    <!-- Card Icon -->
+                    <div class="card-icon-top">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#046A38" stroke-width="1.8">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <circle cx="12" cy="11" r="3"/>
+                            <path d="M8 17c0-2 2-3 4-3s4 1 4 3"/>
+                        </svg>
                     </div>
 
-                    <form id="loginForm" autocomplete="on">
+                    <h2 class="card-title">Officer Login</h2>
+                    <div class="card-title-line"></div>
+
+                    <!-- Login Form -->
+                    <form id="loginForm" autocomplete="on" class="login-form">
                         <div class="form-group">
                             <div class="input-icon-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="#0A5237" stroke-width="2">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                                     <circle cx="12" cy="7" r="4"/>
                                 </svg>
                                 <input type="email" id="loginEmail" placeholder="Officer ID / Username" required autocomplete="email">
                             </div>
                         </div>
+
                         <div class="form-group">
                             <div class="input-icon-wrapper">
-                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="#0A5237" stroke-width="2">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                                 </svg>
                                 <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
                                 <button type="button" class="toggle-password" aria-label="Toggle password visibility" onclick="togglePassword()">
-                                    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2">
+                                    <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                                         <circle cx="12" cy="12" r="3"/>
                                     </svg>
@@ -87,12 +182,11 @@
                             </label>
                             <a href="#" class="forgot-link">Forgot Password?</a>
                         </div>
-                        
+
                         <div id="loginError" class="login-error" role="alert"></div>
-                        
+
                         <button type="submit" class="btn-login" id="loginBtn">
                             <span class="btn-text">
-                                <!-- arrow-in-right icon -->
                                 <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
                                 </svg>
@@ -113,42 +207,104 @@
                     </div>
 
                     <button type="button" class="btn-sso" id="ssoBtn">
-                        <svg class="sso-icon" viewBox="0 0 24 24" fill="none" stroke="#0A5237" stroke-width="2">
+                        <svg class="sso-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                             <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                         </svg>
                         <span>Login with Government SSO</span>
                     </button>
+
+                </div>
+
+                <!-- Authorized notice -->
+                <div class="authorized-notice">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" class="auth-lock-icon">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <div>
+                        <strong>Authorized Personnel Only</strong>
+                        <span>Unauthorized access is strictly prohibited.</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ── FOOTER ── -->
+        <footer class="login-footer">
+            <div class="footer-left">
+                <div class="footer-badge-item">
+                    <div class="footer-badge-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#046A38" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <polyline points="9 11 11 13 15 9"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <strong>Secure</strong>
+                        <span>256-bit SSL Encryption</span>
+                    </div>
+                </div>
+                <div class="footer-badge-item">
+                    <div class="footer-badge-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#046A38" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <strong>Verified</strong>
+                        <span>Government Verified</span>
+                    </div>
+                </div>
+                <div class="footer-badge-item">
+                    <div class="footer-badge-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#046A38" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <polygon points="12 8 13.5 11.5 17 12 14.5 14.5 15 18 12 16.5 9 18 9.5 14.5 7 12 10.5 11.5"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <strong>Trusted</strong>
+                        <span>Your data is protected</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Footer Badges -->
-            <div class="login-footer-badges">
-                <div class="badge-item">
-                    <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        <polyline points="9 11 11 13 15 9"/>
-                    </svg>
-                    <span>Secure</span>
-                </div>
-                <span class="footer-separator">|</span>
-                <div class="badge-item">
-                    <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        <polyline points="9 11 11 13 15 9"/>
-                    </svg>
-                    <span>Verified</span>
-                </div>
-                <span class="footer-separator">|</span>
-                <div class="badge-item">
-                    <svg class="badge-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        <polygon points="12 8 13.5 11.5 17 12 14.5 14.5 15 18 12 16.5 9 18 9.5 14.5 7 12 10.5 11.5"/>
-                    </svg>
-                    <span>Trusted</span>
+            <div class="footer-center">
+                <img src="/officer/telangana_logo.jpg" alt="Government of Telangana" class="footer-emblem">
+                <div class="footer-center-text">
+                    <strong>Government of Telangana</strong>
+                    <span>OneCitizen AI — Officer Verification Portal</span>
+                    <span>© 2025 All rights reserved</span>
                 </div>
             </div>
-        </div>
+
+            <div class="footer-right">
+                <div class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <span class="footer-link-sep">|</span>
+                    <a href="#">Terms of Service</a>
+                    <span class="footer-link-sep">|</span>
+                    <a href="#">Help &amp; Support</a>
+                </div>
+                <div class="footer-contact">
+                    <span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="footer-contact-icon">
+                            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.52 14a19.79 19.79 0 01-3.07-8.67A2 2 0 013.44 3h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.91 10.09a16 16 0 006 6l.72-.72a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0121 17.56v.36z"/>
+                        </svg>
+                        040-xxxx xxxx
+                    </span>
+                    <span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="footer-contact-icon">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        support@telangana.gov.in
+                    </span>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <!-- ===== DASHBOARD ===== -->
@@ -162,7 +318,7 @@
                 </div>
                 <div>
                     <h1 class="topbar-title">Officer Verification Portal</h1>
-                    <span class="topbar-org">OneCitizen — Government of India</span>
+                    <span class="topbar-org">OneCitizen — Government of Telangana</span>
                 </div>
             </div>
             <div class="topbar-right">
