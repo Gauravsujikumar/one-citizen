@@ -29,17 +29,15 @@ const isVercel = !!process.env.VERCEL;
 
 // Resolve correct uploads directory (handles read-only Vercel filesystem)
 let uploadsDir = path.resolve(__dirname, '../uploads');
+if (isVercel) {
+  uploadsDir = path.join(os.tmpdir(), 'uploads');
+}
 try {
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
 } catch (err) {
-  uploadsDir = path.join(os.tmpdir(), 'uploads');
-  if (!fs.existsSync(uploadsDir)) {
-    try {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    } catch (tmpErr) {}
-  }
+  console.warn('[Documents] Failed to create uploads directory:', err.message);
 }
 
 const diskStorageConfig = multer.diskStorage({

@@ -41,20 +41,15 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Serve Uploaded Files
 let uploadsDir = path.join(__dirname, 'uploads');
+if (process.env.VERCEL) {
+  uploadsDir = path.join(require('os').tmpdir(), 'uploads');
+}
 try {
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
 } catch (err) {
-  console.warn('[Server] Failed to create uploads directory, falling back to temporary directory:', err.message);
-  uploadsDir = path.join(require('os').tmpdir(), 'uploads');
-  if (!fs.existsSync(uploadsDir)) {
-    try {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    } catch (tmpErr) {
-      console.error('[Server] Failed to create temporary uploads directory:', tmpErr.message);
-    }
-  }
+  console.warn('[Server] Failed to create uploads directory:', err.message);
 }
 app.use('/uploads', express.static(uploadsDir));
 
