@@ -102,7 +102,7 @@ router.get('/applications', authenticateToken, requireAdmin, async (req, res) =>
   try {
     const result = await db.query(
       `SELECT a.id, a.user_id, a.readiness_score, a.status, a.created_at, a.form_data, a.officer_notes, a.validation_report,
-              s.name as service_name, COALESCE(p.name, u.email, 'Citizen') as citizen_name
+              s.name as service_name, COALESCE(NULLIF(p.name, ''), u.email, 'Citizen') as citizen_name
        FROM applications a
        JOIN services s ON a.service_id = s.id
        LEFT JOIN citizen_profiles p ON a.user_id = p.user_id
@@ -125,12 +125,45 @@ router.get('/applications', authenticateToken, requireAdmin, async (req, res) =>
   }
 });
 
+// 3.5 Live applications stream (Server-Sent Events) - MUST be defined before /applications/:id
+router.get('/applications/live', authenticateToken, requireAdmin, (req, res) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'X-Accel-Buffering': 'no'
+  });
+
+  // Write connection handshake event
+  res.write(`data: ${JSON.stringify({ type: 'connected' })}\n\n`);
+
+  // Handler for new application events
+  const onNewApplication = (app) => {
+    res.write(`data: ${JSON.stringify({ type: 'new_application', data: app })}\n\n`);
+  };
+
+  const liveEvents = require('../live_events');
+  liveEvents.on('new_application', onNewApplication);
+
+  // Set up keep-alive heartbeats
+  const heartbeat = setInterval(() => {
+    res.write(': heartbeat\n\n');
+  }, 20000);
+
+  // Handle client disconnect
+  req.on('close', () => {
+    liveEvents.off('new_application', onNewApplication);
+    clearInterval(heartbeat);
+    res.end();
+  });
+});
+
 // 4. Get single application with full details + documents
 router.get('/applications/:id', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const appResult = await db.query(
       `SELECT a.*, s.name as service_name, s.required_documents, s.category,
-              COALESCE(p.name, u.email, 'Citizen') as citizen_name, p.dob, p.gender, p.state, p.district, 
+              COALESCE(NULLIF(p.name, ''), u.email, 'Citizen') as citizen_name, p.dob, p.gender, p.state, p.district, 
               p.occupation, p.income_category, p.income_amount, p.caste, p.education
        FROM applications a
        JOIN services s ON a.service_id = s.id

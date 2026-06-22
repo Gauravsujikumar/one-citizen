@@ -500,6 +500,22 @@ router.post('/submit', authenticateToken, async (req, res) => {
       ]
     );
 
+    // Emit live event for real-time dashboard reflection
+    try {
+      const liveEvents = require('../live_events');
+      liveEvents.emit('new_application', {
+        id: applicationId,
+        user_id: req.user.id,
+        service_id,
+        readiness_score: readiness_score || 0,
+        status: 'pending',
+        created_at: now.toISOString(),
+        service_name: svcInfo.name || form_data.service_name || 'Government Certificate',
+        citizen_name: form_data.applicant_name || form_data.name || 'Citizen'
+      });
+    } catch (liveErr) {
+      console.warn('[Live Events] Failed to emit live application event:', liveErr.message);
+    }
 
     res.status(201).json({
       message: 'Application submitted successfully',

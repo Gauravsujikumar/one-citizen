@@ -303,130 +303,437 @@
     </div>
 
     <!-- ===== DASHBOARD ===== -->
-    <div id="dashboard" class="dashboard" hidden>
-
-        <!-- Top Bar -->
-        <header class="topbar">
-            <div class="topbar-left">
-                <div class="topbar-emblem">
-                    <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="15" stroke="#fff" stroke-width="1.5"/><circle cx="16" cy="16" r="5" stroke="#fff" stroke-width="1.5"/><circle cx="16" cy="16" r="2" fill="#fff"/><path d="M16 4v6M16 22v6M4 16h6M22 16h6" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
-                </div>
-                <div>
-                    <h1 class="topbar-title">Officer Verification Portal</h1>
-                    <span class="topbar-org">OneCitizen — Government of Telangana</span>
+    <div id="dashboard" class="dashboard-container" hidden>
+        <!-- Left Sidebar -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <img src="/officer/telangana_logo.jpg" alt="Telangana Emblem" class="sidebar-emblem">
+                <div class="sidebar-brand">
+                    <span class="sidebar-title">OneCitizen AI</span>
+                    <span class="sidebar-sub">Officer Portal</span>
                 </div>
             </div>
-            <div class="topbar-right">
-                <div class="officer-badge">
-                    <div class="officer-avatar" id="officerAvatar">O</div>
-                    <span class="officer-email" id="officerEmail">officer@gov.in</span>
+
+            <nav class="sidebar-menu">
+                <div class="menu-category">Applications</div>
+                <ul class="menu-list">
+                    <li class="menu-item active" data-tab="all">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+                        <span>All Applications</span>
+                        <span class="menu-badge badge-total" id="sidebarTotal">0</span>
+                    </li>
+                    <li class="menu-item" data-tab="pending">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span>Pending Verification</span>
+                        <span class="menu-badge badge-pending" id="sidebarPending">0</span>
+                    </li>
+                    <li class="menu-item" data-tab="under_review">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <span>Under Review</span>
+                        <span class="menu-badge badge-review" id="sidebarReview">0</span>
+                    </li>
+                    <li class="menu-item" data-tab="approved">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        <span>Approved</span>
+                        <span class="menu-badge badge-approved" id="sidebarApproved">0</span>
+                    </li>
+                    <li class="menu-item" data-tab="rejected">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        <span>Rejected</span>
+                        <span class="menu-badge badge-rejected" id="sidebarRejected">0</span>
+                    </li>
+                </ul>
+
+                <div class="menu-category">Services</div>
+                <ul class="menu-list">
+                    <li class="menu-item service-filter-item active" data-service="all">
+                        <span class="service-dot dot-all"></span>
+                        <span>All Services</span>
+                    </li>
+                    <li class="menu-item service-filter-item" data-service="income">
+                        <span class="service-dot dot-income"></span>
+                        <span>Income Certificate</span>
+                    </li>
+                    <li class="menu-item service-filter-item" data-service="caste">
+                        <span class="service-dot dot-caste"></span>
+                        <span>Caste Certificate</span>
+                    </li>
+                    <li class="menu-item service-filter-item" data-service="ews">
+                        <span class="service-dot dot-ews"></span>
+                        <span>EWS Certificate</span>
+                    </li>
+                    <li class="menu-item service-filter-item" data-service="birth">
+                        <span class="service-dot dot-birth"></span>
+                        <span>Birth Certificate</span>
+                    </li>
+                    <li class="menu-item service-filter-item" data-service="death">
+                        <span class="service-dot dot-death"></span>
+                        <span>Death Certificate</span>
+                    </li>
+                </ul>
+
+                <div class="menu-category">Reports & Analytics</div>
+                <ul class="menu-list">
+                    <li class="menu-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        <span>Verification Reports</span>
+                    </li>
+                    <li class="menu-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                        <span>Performance Matrix</span>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="help-card">
+                    <div class="help-card-icon">📞</div>
+                    <div class="help-card-body">
+                        <span class="help-title">Need Help?</span>
+                        <span class="help-desc">Contact Officer Support Line:</span>
+                        <span class="help-phone">040-2345 0192</span>
+                    </div>
                 </div>
-                <button class="btn-logout" id="logoutBtn" title="Sign Out">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    <span>Sign Out</span>
-                </button>
             </div>
-        </header>
+        </aside>
 
-        <!-- Main Content -->
-        <main class="main-content">
+        <!-- Main Content Area -->
+        <div class="dashboard-main-area">
+            <!-- Top Welcome Header -->
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <h2 class="header-welcome">Welcome back, <span class="officer-display-name">Ravi Kumar</span></h2>
+                    <p class="header-subtitle">Authorized Officer | <span class="officer-office-label">Warangal District Office</span></p>
+                </div>
+                <div class="header-right">
+                    <div class="header-notifications" title="No new alerts">
+                        <div class="notification-bell-wrapper">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="bell-icon"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                            <span class="notification-badge" id="notifBadge" hidden></span>
+                        </div>
+                    </div>
+                    
+                    <div class="header-profile">
+                        <div class="officer-avatar" id="officerAvatar">R</div>
+                        <div class="profile-info">
+                            <span class="profile-email" id="officerEmail">ravi.kumar@telangana.gov.in</span>
+                            <span class="profile-role">Senior Verifier</span>
+                        </div>
+                    </div>
 
-            <!-- Stats Row -->
-            <section class="stats-row" aria-label="Application Statistics">
-                <div class="stat-card stat-total">
-                    <div class="stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h18"/></svg>
-                    </div>
-                    <div class="stat-info">
-                        <span class="stat-value" id="statTotal">—</span>
-                        <span class="stat-label">Total Applications</span>
-                    </div>
-                </div>
-                <div class="stat-card stat-pending">
-                    <div class="stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    </div>
-                    <div class="stat-info">
-                        <span class="stat-value" id="statPending">—</span>
-                        <span class="stat-label">Pending</span>
-                    </div>
-                </div>
-                <div class="stat-card stat-review">
-                    <div class="stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    </div>
-                    <div class="stat-info">
-                        <span class="stat-value" id="statReview">—</span>
-                        <span class="stat-label">Under Review</span>
-                    </div>
-                </div>
-                <div class="stat-card stat-approved">
-                    <div class="stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    </div>
-                    <div class="stat-info">
-                        <span class="stat-value" id="statApproved">—</span>
-                        <span class="stat-label">Approved</span>
-                    </div>
-                </div>
-                <div class="stat-card stat-rejected">
-                    <div class="stat-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                    </div>
-                    <div class="stat-info">
-                        <span class="stat-value" id="statRejected">—</span>
-                        <span class="stat-label">Rejected</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Application Queue -->
-            <section class="queue-section">
-                <div class="queue-header">
-                    <h2>Application Queue</h2>
-                    <button class="btn-refresh" id="refreshBtn" title="Refresh applications">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-                        Refresh
+                    <button class="btn-logout" id="logoutBtn" title="Sign Out">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span>Sign Out</span>
                     </button>
                 </div>
+            </header>
 
-                <div class="table-container">
-                    <table class="queue-table" id="queueTable">
-                        <thead>
-                            <tr>
-                                <th>Application ID</th>
-                                <th>Citizen Name</th>
-                                <th>Service</th>
-                                <th>Readiness Score</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="queueBody">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
+            <div class="dashboard-scrollable-content">
+                <!-- Stats Row -->
+                <section class="stats-grid" aria-label="Application Summary Metrics">
+                    <div class="stat-card total">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Total Submissions</span>
+                            <div class="stat-card-icon">📊</div>
+                        </div>
+                        <div class="stat-card-body">
+                            <span class="stat-value" id="statTotal">0</span>
+                            <span class="stat-change positive">↑ 12% vs last week</span>
+                        </div>
+                    </div>
+                    <div class="stat-card pending">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Pending Queue</span>
+                            <div class="stat-card-icon">⏳</div>
+                        </div>
+                        <div class="stat-card-body">
+                            <span class="stat-value" id="statPending">0</span>
+                            <span class="stat-change neutral">Active items</span>
+                        </div>
+                    </div>
+                    <div class="stat-card review">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Under Review</span>
+                            <div class="stat-card-icon">🔍</div>
+                        </div>
+                        <div class="stat-card-body">
+                            <span class="stat-value" id="statReview">0</span>
+                            <span class="stat-change positive">In progress</span>
+                        </div>
+                    </div>
+                    <div class="stat-card approved">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Approved Certificates</span>
+                            <div class="stat-card-icon">✅</div>
+                        </div>
+                        <div class="stat-card-body">
+                            <span class="stat-value" id="statApproved">0</span>
+                            <span class="stat-change positive">↑ 8% approval rate</span>
+                        </div>
+                    </div>
+                    <div class="stat-card rejected">
+                        <div class="stat-card-header">
+                            <span class="stat-card-title">Rejected Applications</span>
+                            <div class="stat-card-icon">❌</div>
+                        </div>
+                        <div class="stat-card-body">
+                            <span class="stat-value" id="statRejected">0</span>
+                            <span class="stat-change negative">Prevented rejections</span>
+                        </div>
+                    </div>
+                </section>
 
-                    <!-- Empty State -->
-                    <div id="emptyState" class="empty-state" hidden>
-                        <svg viewBox="0 0 80 80" fill="none" stroke="#046A38" stroke-width="1.5" opacity="0.3">
-                            <rect x="10" y="10" width="60" height="60" rx="8"/>
-                            <line x1="25" y1="30" x2="55" y2="30"/>
-                            <line x1="25" y1="40" x2="50" y2="40"/>
-                            <line x1="25" y1="50" x2="45" y2="50"/>
-                        </svg>
-                        <p>No applications found</p>
+                <!-- Quick Actions Grid -->
+                <section class="quick-actions-section">
+                    <h3 class="dashboard-section-heading">Quick Actions</h3>
+                    <div class="quick-actions-grid">
+                        <button class="action-btn" id="actionVerifyDocs">
+                            <span class="action-btn-icon">📄</span>
+                            <span class="action-btn-title">Verify Documents</span>
+                            <span class="action-btn-desc">Check pending citizen uploads</span>
+                        </button>
+                        <button class="action-btn" id="actionApproveQuick">
+                            <span class="action-btn-icon">✅</span>
+                            <span class="action-btn-title">Bulk Approve</span>
+                            <span class="action-btn-desc">Approve high readiness scores</span>
+                        </button>
+                        <button class="action-btn" id="actionCitizenSearch">
+                            <span class="action-btn-icon">🔍</span>
+                            <span class="action-btn-title">Citizen Lookup</span>
+                            <span class="action-btn-desc">Search digital twin database</span>
+                        </button>
+                        <button class="action-btn" id="actionGenerateReports">
+                            <span class="action-btn-icon">📈</span>
+                            <span class="action-btn-title">Generate Reports</span>
+                            <span class="action-btn-desc">Export monthly performance logs</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Split Grid: Queue (Left) & Summaries (Right) -->
+                <div class="split-content-grid">
+                    <!-- Left: Application Queue Table Card -->
+                    <div class="split-left-card">
+                        <div class="queue-card-header">
+                            <div class="queue-header-left">
+                                <h3 class="queue-card-title">Verification Work Queue</h3>
+                                <span class="queue-card-count" id="queueCountLabel">0 Applications</span>
+                            </div>
+                            <div class="queue-header-right">
+                                <div class="queue-search-box">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                    <input type="text" id="queueSearch" placeholder="Search by Citizen Name, ID, Mobile...">
+                                </div>
+                                <button class="btn-refresh-dashboard" id="refreshBtn" title="Refresh application list">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="refresh-icon"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Service Category Subtabs -->
+                        <div class="queue-tabs-container">
+                            <button class="queue-tab active" data-service-tab="all">All Services</button>
+                            <button class="queue-tab" data-service-tab="income">Income</button>
+                            <button class="queue-tab" data-service-tab="caste">Caste</button>
+                            <button class="queue-tab" data-service-tab="ews">EWS</button>
+                            <button class="queue-tab" data-service-tab="birth">Birth</button>
+                            <button class="queue-tab" data-service-tab="death">Death</button>
+                            <button class="queue-tab" data-service-tab="others">Others</button>
+                        </div>
+
+                        <!-- Table Area -->
+                        <div class="table-scroll-wrapper">
+                            <table class="queue-table" id="queueTable">
+                                <thead>
+                                    <tr>
+                                        <th>Application ID</th>
+                                        <th>Citizen Name</th>
+                                        <th>Service Type</th>
+                                        <th>Readiness Score</th>
+                                        <th>Status</th>
+                                        <th>Date Submitted</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="queueBody">
+                                    <!-- Dynamic rows loaded from database -->
+                                </tbody>
+                            </table>
+
+                            <!-- Empty Queue State -->
+                            <div id="emptyState" class="empty-state-card" hidden>
+                                <div class="empty-state-icon">📂</div>
+                                <h4>No Applications Found</h4>
+                                <p>All items have been verified or no applications match the active filters.</p>
+                            </div>
+
+                            <!-- Loading State -->
+                            <div id="loadingState" class="loading-state-card">
+                                <div class="spinner-ring"></div>
+                                <p>Fetching dynamic verification queue...</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Loading State -->
-                    <div id="loadingState" class="loading-state">
-                        <div class="loading-spinner"></div>
-                        <p>Loading applications...</p>
+                    <!-- Right: Widgets Column -->
+                    <div class="split-right-column">
+                        <!-- Widget 1: Today's Summary -->
+                        <div class="widget-card">
+                            <h4 class="widget-title">Today's Summary</h4>
+                            <div class="summary-metric-list">
+                                <div class="summary-metric-item">
+                                    <span class="metric-label">Applications Received</span>
+                                    <span class="metric-val" id="todayReceivedCount">0</span>
+                                </div>
+                                <div class="summary-metric-item">
+                                    <span class="metric-label">Approved Certificates</span>
+                                    <span class="metric-val text-green" id="todayApprovedCount">0</span>
+                                </div>
+                                <div class="summary-metric-item">
+                                    <span class="metric-label">Applications Rejected</span>
+                                    <span class="metric-val text-red" id="todayRejectedCount">0</span>
+                                </div>
+                                <div class="summary-metric-item">
+                                    <span class="metric-label">Avg. Processing Time</span>
+                                    <span class="metric-val" id="todayProcessingTime">8.4 mins</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Widget 2: District Performance -->
+                        <div class="widget-card">
+                            <h4 class="widget-title">District SLA Performance</h4>
+                            <div class="district-performance-body">
+                                <div class="perf-district-header">
+                                    <span class="district-name">Warangal Urban</span>
+                                    <span class="district-pct" id="districtPerfPct">87%</span>
+                                </div>
+                                <div class="perf-progress-bar">
+                                    <div class="perf-progress-fill" style="width: 87%"></div>
+                                </div>
+                                <p class="perf-desc">SLA compliance rate for certificate processing. Target: 90%</p>
+                            </div>
+                        </div>
+
+                        <!-- Widget 3: Recent Activity Log -->
+                        <div class="widget-card">
+                            <h4 class="widget-title">Recent Activity Logs</h4>
+                            <div class="activity-log-list" id="recentActivityList">
+                                <div class="activity-log-item">
+                                    <span class="activity-time">Just Now</span>
+                                    <p class="activity-desc"><strong>Live updates pipeline connected</strong>. Listening for incoming applications.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </section>
-        </main>
+
+                <!-- Bottom Row: Inline Analytics Charts (SVG) -->
+                <section class="analytics-charts-section">
+                    <h3 class="dashboard-section-heading">Analytics & Trends</h3>
+                    <div class="charts-grid">
+                        <!-- Line Chart: Submissions Trend -->
+                        <div class="chart-card">
+                            <h4 class="chart-card-title">Applications Processing Trend (Last 7 Days)</h4>
+                            <div class="chart-container">
+                                <!-- Modern Inline SVG Line Chart -->
+                                <svg class="svg-line-chart" viewBox="0 0 400 180" width="100%" height="100%">
+                                    <defs>
+                                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stop-color="#046A38" stop-opacity="0.2"/>
+                                            <stop offset="100%" stop-color="#046A38" stop-opacity="0.0"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <!-- Grid Lines -->
+                                    <line x1="40" y1="20" x2="380" y2="20" stroke="#f1f5f9" stroke-width="1"/>
+                                    <line x1="40" y1="60" x2="380" y2="60" stroke="#f1f5f9" stroke-width="1"/>
+                                    <line x1="40" y1="100" x2="380" y2="100" stroke="#f1f5f9" stroke-width="1"/>
+                                    <line x1="40" y1="140" x2="380" y2="140" stroke="#f8fafc" stroke-width="1.5"/>
+                                    <!-- Y Axis Labels -->
+                                    <text x="30" y="24" fill="#94a3b8" font-size="9" text-anchor="end">40</text>
+                                    <text x="30" y="64" fill="#94a3b8" font-size="9" text-anchor="end">25</text>
+                                    <text x="30" y="104" fill="#94a3b8" font-size="9" text-anchor="end">10</text>
+                                    <text x="30" y="144" fill="#94a3b8" font-size="9" text-anchor="end">0</text>
+                                    <!-- X Axis Labels -->
+                                    <text x="50" y="160" fill="#94a3b8" font-size="9" text-anchor="middle">Mon</text>
+                                    <text x="100" y="160" fill="#94a3b8" font-size="9" text-anchor="middle">Tue</text>
+                                    <text x="150" y="160" fill="#94a3b8" font-size="9" text-anchor="middle">Wed</text>
+                                    <text x="200" y="160" fill="#94a3b8" font-size="9" text-anchor="middle">Thu</text>
+                                    <text x="250" y="160" fill="#94a3b8" font-size="9" text-anchor="middle">Fri</text>
+                                    <text x="300" y="160" fill="#94a3b8" font-size="9" text-anchor="middle">Sat</text>
+                                    <text x="350" y="160" fill="#94a3b8" font-size="9" text-anchor="middle">Sun</text>
+                                    <!-- Area Path -->
+                                    <path d="M 50,140 Q 100,100 150,110 T 250,70 T 350,50 L 350,140 Z" fill="url(#chartGradient)"/>
+                                    <!-- Line Path -->
+                                    <path d="M 50,140 Q 100,100 150,110 T 250,70 T 350,50" fill="none" stroke="#046A38" stroke-width="3" stroke-linecap="round"/>
+                                    <!-- Dots -->
+                                    <circle cx="50" cy="140" r="4" fill="#046A38" stroke="#fff" stroke-width="1.5"/>
+                                    <circle cx="100" cy="115" r="4" fill="#046A38" stroke="#fff" stroke-width="1.5"/>
+                                    <circle cx="150" cy="110" r="4" fill="#046A38" stroke="#fff" stroke-width="1.5"/>
+                                    <circle cx="200" cy="90" r="4" fill="#046A38" stroke="#fff" stroke-width="1.5"/>
+                                    <circle cx="250" cy="70" r="4" fill="#046A38" stroke="#fff" stroke-width="1.5"/>
+                                    <circle cx="300" cy="65" r="4" fill="#046A38" stroke="#fff" stroke-width="1.5"/>
+                                    <circle cx="350" cy="50" r="4" fill="#046A38" stroke="#fff" stroke-width="1.5"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Donut Chart: Services Breakdown -->
+                        <div class="chart-card">
+                            <h4 class="chart-card-title">Applications by Service Category</h4>
+                            <div class="chart-container-donut">
+                                <div class="donut-chart-wrapper">
+                                    <svg class="svg-donut-chart" viewBox="0 0 100 100" width="120" height="120">
+                                        <!-- Donut slices using stroke-dasharray (Total circum=251.2, r=40) -->
+                                        <!-- Slice 1: Income (45%) -> Dash 113, Offset 0 -->
+                                        <circle cx="50" cy="50" r="40" fill="none" stroke="#046A38" stroke-width="12" stroke-dasharray="113 251.2" stroke-dashoffset="0"/>
+                                        <!-- Slice 2: Caste (30%) -> Dash 75.3, Offset -113 -->
+                                        <circle cx="50" cy="50" r="40" fill="none" stroke="#2563EB" stroke-width="12" stroke-dasharray="75.3 251.2" stroke-dashoffset="-113"/>
+                                        <!-- Slice 3: EWS (15%) -> Dash 37.7, Offset -188.3 -->
+                                        <circle cx="50" cy="50" r="40" fill="none" stroke="#F59E0B" stroke-width="12" stroke-dasharray="37.7 251.2" stroke-dashoffset="-188.3"/>
+                                        <!-- Slice 4: Others (10%) -> Dash 25.1, Offset -226 -->
+                                        <circle cx="50" cy="50" r="40" fill="none" stroke="#EF4444" stroke-width="12" stroke-dasharray="25.1 251.2" stroke-dashoffset="-226"/>
+                                        <!-- Center Hole to create Donut -->
+                                        <circle cx="50" cy="50" r="28" fill="#ffffff"/>
+                                    </svg>
+                                    <div class="donut-center-label">
+                                        <span class="donut-center-num" id="donutTotalCount">0</span>
+                                        <span class="donut-center-text">Total</span>
+                                    </div>
+                                </div>
+                                <div class="donut-legend">
+                                    <div class="legend-item">
+                                        <span class="legend-dot" style="background: #046A38"></span>
+                                        <span class="legend-label">Income Certificate (45%)</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-dot" style="background: #2563EB"></span>
+                                        <span class="legend-label">Caste Certificate (30%)</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-dot" style="background: #F59E0B"></span>
+                                        <span class="legend-label">EWS Certificate (15%)</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-dot" style="background: #EF4444"></span>
+                                        <span class="legend-label">Others (10%)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Dashboard Subfooter -->
+            <footer class="dashboard-footer">
+                <span>© 2026 Government of Telangana. Powered by OneCitizen AI.</span>
+                <div class="footer-badges">
+                    <span class="secure-badge">🛡️ Authorized Personnel Access Only</span>
+                    <span class="encrypt-badge">🔒 256-bit SSL Encryption</span>
+                </div>
+            </footer>
+        </div>
     </div>
 
     <!-- ===== APPLICATION DETAIL MODAL ===== -->
