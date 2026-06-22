@@ -792,7 +792,10 @@
 
         // Show/hide actions based on status
         const isActionable = (status !== 'approved' && status !== 'rejected');
-        els.actionsSection.style.display = isActionable ? 'block' : 'none';
+        els.approveBtn.hidden = !isActionable;
+        els.rejectBtn.hidden = !isActionable;
+        els.actionsSection.querySelectorAll('.officer-notes-group').forEach(el => el.hidden = !isActionable);
+        els.actionsSection.style.display = 'block';
     }
 
     function setDetailStatus(status) {

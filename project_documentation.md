@@ -96,6 +96,8 @@ Designed for government administrators, this interface manages verification queu
 - **SSE Live Pipeline:** An active Server-Sent Events line (`/api/admin/applications/live`) pushes citizen submissions instantly to the dashboard.
 - **Bulk Verification:** Runs background evaluations, marking high-readiness files for bulk approval.
 - **Mandatory Rejection Reasons:** Requiring input notes when rejecting, maintaining transparency.
+- **Queue and Upload Purging (Bulk Clear):** Allows officers to clear all files and applications from the database and directory using a "Clear Files" action button.
+- **Individual Application Deletion:** Provides a "Delete Application" action on the detail panel to selectively delete specific citizen application records, documents, and physical upload files.
 
 ---
 
@@ -108,6 +110,8 @@ Designed for government administrators, this interface manages verification queu
 - **POST /api/documents/upload:** Ingests document, runs Gemini OCR, and stores metadata.
 - **GET /api/admin/applications:** Lists submissions.
 - **PATCH /api/admin/applications/:id/status:** Updates status and posts notifications.
+- **DELETE /api/admin/applications/clear:** Purges all applications, document vault records, and physical uploads.
+- **DELETE /api/admin/applications/:id:** Deletes a specific application, its documents, and corresponding physical files.
 
 ---
 
