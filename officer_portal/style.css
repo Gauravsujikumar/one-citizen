@@ -1320,6 +1320,14 @@ body {
 
 .stat-card-icon {
     font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.stat-card-icon svg {
+    width: 22px;
+    height: 22px;
+    display: block;
 }
 
 .stat-card-body {
@@ -1386,6 +1394,14 @@ body {
 .action-btn-icon {
     font-size: 1.4rem;
     margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.action-btn-icon svg {
+    width: 24px;
+    height: 24px;
+    display: block;
 }
 
 .action-btn-title {
@@ -1664,6 +1680,14 @@ body {
     font-size: 2.5rem;
     margin-bottom: 12px;
     opacity: 0.3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.empty-state-icon svg {
+    width: 48px;
+    height: 48px;
+    display: block;
 }
 
 .empty-state-card h4 {
@@ -2051,30 +2075,15 @@ body {
     height: 72px;
 }
 
-.banner-emoji-box {
+.banner-meta-item {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: #e6f5ed;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    flex-direction: column;
 }
 
-.detail-status-emoji {
-    font-size: 2.2rem;
-    line-height: 1;
-}
-
-.service-icon {
-    font-size: 1.1rem;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 18px;
-    height: 18px;
+.banner-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--green-900);
 }
 
 .score-ring {

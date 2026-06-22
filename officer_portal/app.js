@@ -41,7 +41,8 @@
         detailOverlay: $('#detailOverlay'),
         detailAppId: $('#detailAppId'),
         detailStatus: $('#detailStatus'),
-        detailEmoji: $('#detailEmoji'),
+        detailServiceType: $('#detailServiceType'),
+        detailDateSubmitted: $('#detailDateSubmitted'),
         detailBanner: $('#detailBanner'),
         citizenInfo: $('#citizenInfo'),
         formData: $('#formData'),
@@ -641,16 +642,9 @@
         const status = normalizeStatus(app.status);
         setDetailStatus(status);
 
-        // Set Emoji
-        const emojiMap = {
-            pending: '⏳',
-            under_review: '🔍',
-            approved: '✅',
-            rejected: '❌'
-        };
-        if (els.detailEmoji) {
-            els.detailEmoji.textContent = emojiMap[status] || '⏳';
-        }
+        // Service Type & Date Submitted
+        els.detailServiceType.textContent = app.service_name || app.service || '—';
+        els.detailDateSubmitted.textContent = formatDate(app.created_at || app.createdAt || app.date || app.submitted_at);
 
         // Citizen info
         const citizen = app.citizen || app.user || app;
@@ -725,7 +719,7 @@
 
         // Show certificate-specific uploaded files from form_data
         if (uploadedFiles.length > 0) {
-            docsHtml += '<div style="margin-top:8px;padding-top:8px;border-top:2px solid #e2e8f0;"><p style="font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;">📎 Certificate Application Uploads</p>';
+            docsHtml += '<div style="margin-top:8px;padding-top:8px;border-top:2px solid #e2e8f0;"><p style="font-size:11px;font-weight:700;color:#475569;margin-bottom:6px;display:flex;align-items:center;gap:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px; color: #64748b;"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Certificate Application Uploads</p>';
             docsHtml += uploadedFiles.map(f => {
                 return `
                     <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9;">
