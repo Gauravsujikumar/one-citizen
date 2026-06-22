@@ -1,94 +1,188 @@
-# OneCitizen AI — Project Documentation
+# OneCitizen AI — Comprehensive Technical Documentation & System Specification
 
-OneCitizen AI is a state-of-the-art citizen digital twin and copilot portal designed to simplify, secure, and accelerate government service applications (e.g., MeeSeva certificates in Telangana). It uses artificial intelligence to prevent document mismatch rejections, auto-fill complex forms, and guide citizens through bureaucratic processes.
+OneCitizen AI is an advanced citizen digital twin and copilot portal designed to simplify, secure, and accelerate government service applications (e.g., MeeSeva certificates in Telangana). It uses artificial intelligence to prevent document mismatch rejections, auto-fill complex forms, and guide citizens through bureaucratic processes.
 
 ---
 
-## 🌟 Why This Project Helps & Is Useful
+## 1. Executive Summary
 
 Applying for government services in India often involves high rejection rates, accessibility challenges, and confusion over required documents. OneCitizen AI solves these problems through:
-
-### 1. Rejection Prevention via "Readiness Scoring"
-A significant portion of government applications are rejected due to minor discrepancies (e.g., name spellings not matching between Aadhaar and PAN cards, or expired income certificates).
-- **The Solution**: Before a citizen submits an application, OneCitizen's backend cross-checks all vaulted documents, fuzzy-matches names using Levenshtein distance, checks expiry dates, and calculates a **Readiness Score**. If discrepancies are found, it flags them immediately, saving citizens weeks of processing delays.
-
-### 2. The Citizen Digital Twin
-Citizens can securely upload and store their vital credentials (Aadhaar, PAN, Income, Caste, Birth, and Death certificates) in a digital vault. 
-- **The Solution**: Once uploaded, document metadata is parsed and saved. This "Digital Twin" profile is then used to instantly auto-fill official forms, reducing transcription errors to zero.
-
-### 3. AI-Powered Bureaucracy Copilot
-Navigating which schemes are available and what documents are required is highly confusing.
-- **The Solution**: An integrated Gemini-powered chat assistant guides users through eligibility requirements, recommends relevant welfare schemes, and answers queries using localized context.
-
-### 4. Inclusive Accessibility
-- **The Solution**: The portal is fully localized (English, Telugu, Hindi, Urdu) and features voice simulation, making digital governance accessible to elderly, rural, and low-literacy populations.
+- **Rejection Prevention via "Readiness Scoring":** Fuzzy-matching names across documents and checking validity rules before citizen submission.
+- **The Citizen Digital Twin:** Securing credentials in a digital vault and auto-filling official forms.
+- **AI-Powered Bureaucracy Copilot:** A chat assistant explaining welfare schemes and recommending certificates.
+- **Inclusive Accessibility:** Multi-language support (English, Telugu, Hindi, Urdu) with a clean user experience.
 
 ---
 
-## 🔄 How It Works (User Flow)
+## 2. System Architecture & Infrastructure
 
-The application coordinates frontend interfaces, background OCR validators, and AI engines to guide citizens through a seamless 4-step workflow:
+OneCitizen AI uses a dual-mode system architecture designed to run on serverless environments (e.g. Vercel) while maintaining full offline-first capabilities for local development.
 
-```mermaid
-graph TD
-    A[Citizen Logs In via OTP] --> B[Upload Documents to Vault]
-    B --> C{Background OCR & Verification}
-    C -- Mismatch Found --> D[Flag Data Error / Reject Upload]
-    C -- Verified --> E[Digital Twin Profile Created]
-    E --> F[AI Copilot Recommends Schemes & Auto-Fills Form]
-    F --> G[Readiness Score Calculated]
-    G -- Score < 80% --> H[Flag Discrepancies to Citizen]
-    G -- Score >= 80% --> I[Compile Submission Package PDF & Alert Officer]
+```
+       [ Citizen Portal (SPA) ]               [ Officer Portal ]
+                  |                                   |
+                  +-----------------+-----------------+
+                                    | (JSON over HTTPS / SSE)
+                                    v
+                          [ Node.js/Express API ]
+                                    |
+            +-----------------------+-----------------------+
+            | (Dual-Mode Data Layer fallback checks)        |
+            v                                               v
+  [ SQLite (Local Dev) ]                            [ Google Firestore ]
+  File: backend/one_citizen.db                      Database: cloud-managed
 ```
 
-### Step 1: Secure OTP Authentication
-Citizens authenticate using their mobile numbers. An OTP is dispatched via Twilio (falling back to a secure development environment log if Twilio credentials aren't configured).
-
-### Step 2: Document Vaulting & OCR Verification
-The user uploads documents (e.g., Aadhaar, PAN). 
-1. The server runs **Gemini Vision OCR** (falling back to local Tesseract OCR) to extract text.
-2. The server extracts the Name, DOB, and ID Numbers.
-3. The server runs a **fuzzy verification check** comparing names against the user's profile and Aadhaar card.
-4. If there is a mismatch, the upload is rejected to prevent fraud or user error.
-
-### Step 3: AI Consultation & Auto-Fill
-Citizens consult the Copilot (e.g., *"I got admission into engineering college"*). The Copilot recommends matching schemes (e.g., Telangana Post-Matric Scholarship) and redirects the user to the application form. The form queries the backend to pull values from the citizen's Digital Twin, instantly pre-populating fields like Aadhaar Number, DOB, and Address.
-
-### Step 4: Readiness Check & Compilation
-Upon clicking "Apply", the system performs a final validation. If the score is high, the backend compiles the form data and credentials into a single unified submission package (PDF) and saves it to the registrar queue for administrative approval.
+### Technology Stack Details:
+- **Frontend:** Vanilla HTML5, CSS3 variables (design tokens, dark themes), and ES6+ asynchronous JavaScript.
+- **Map Visualizations:** Leaflet.js mapping regional MeeSeva centers.
+- **Backend API:** Node.js Express server.
+- **Authentication:** Firebase Auth compatibility layer and mobile OTP routing.
+- **AI Engine:** Gemini 2.0 Flash API (Vision OCR and chat prompts).
 
 ---
 
-## 🛠️ Technical Details & Architecture
+## 3. Citizen Digital Twin Portal Features
 
-### 1. Technology Stack
-- **Frontend**: Vanilla HTML5, CSS3 (using CSS variables, glassmorphism design tokens, and CSS hardware-accelerated animations), and asynchronous Vanilla JavaScript (ES6+).
-- **Map Visualizations**: Leaflet.js for mapping local MeeSeva service centers.
-- **Backend API**: Node.js with Express.
-- **Authentication**: Firebase Authentication (compat SDK) and secure phone-based OTP routing.
-- **Database Engine**: Dual-mode SQLite (for local development via `one_citizen.db`) and Firestore (for production serverless environments).
-- **AI Integration**: Gemini 2.0 Flash API (for chat copilot prompts and Vision OCR document validation).
+The citizen portal is structured as a Single Page Application (SPA) with a dynamic state engine:
+- **Digital Twin Vault:** Ingests document uploads, validates credentials, and pre-populates forms.
+- **AI Bureaucracy Copilot:** Conversational interface suggesting schemes and launching pre-filled forms.
+- **MeeSeva Locator:** Fully interactive local maps using Leaflet.js coordinates.
+- **Multi-Language Switcher:** Translations dictionary in `app.js` enabling hot-swapping between English, Telugu, Hindi, and Urdu.
 
-### 2. Project File Structure
-- [index.html](file:///d:/projects/one%20citizen/web_demo/index.html): Core SPA interface, styling nodes, and modals.
-- [style.css](file:///d:/projects/one%20citizen/web_demo/style.css): Premium design system including dark-theme overrides, glass containers, scanner lasers, and animations.
-- [app.js](file:///d:/projects/one%20citizen/web_demo/app.js): Core SPA controller handling navigation, state machines, API calls, parallel network requests, Leaflet maps, and translation dicts.
-- [backend/server.js](file:///d:/projects/one%20citizen/backend/server.js): Entrypoint for the Express API, containing CORS, body size configurations, static routes, and temporary file cleaner.
-- [backend/firestore.js](file:///d:/projects/one%20citizen/backend/firestore.js): Abstracted data access layer providing dual-mode SQLite/Firestore fallback wrappers.
-- **backend/routes/**:
-  - [auth.js](file:///d:/projects/one%20citizen/backend/routes/auth.js): Sign up, email/password, and Firebase token verification.
-  - [otp.js](file:///d:/projects/one%20citizen/backend/routes/otp.js): Twilio SMS sender, in-memory rate-limiter, and brute-force protector.
-  - [documents.js](file:///d:/projects/one%20citizen/backend/routes/documents.js): File uploading via Multer, Gemini Vision OCR prompts, and Levenshtein name-matching algorithms.
-  - [services.js](file:///d:/projects/one%20citizen/backend/routes/services.js): Auto-fill aggregator and application readiness scoring logic.
-  - [copilot.js](file:///d:/projects/one%20citizen/backend/routes/copilot.js): Streamlined chatbot system instructions and API queries.
-  - [admin.js](file:///d:/projects/one%20citizen/backend/routes/admin.js): Parameterized database dashboard statistics and application queue approvals.
+---
 
-### 3. Security Architecture
-- **CORS Whitelisting**: Restricted to whitelisted domains (`ALLOWED_ORIGINS` in `.env`) to prevent unauthorized cross-origin requests in production.
-- **Payload Sanitization**: JSON parser body limits are capped at `1mb` to prevent Denial of Service (DoS) attacks.
-- **Role Isolation**: Citizen roles are strictly hardcoded to `'citizen'` upon user signup to prevent privilege escalation attacks.
-- **Rate-Limiting & Anti-Brute Force**: 
-  - OTP requests are rate-limited to 3 times every 5 minutes.
-  - Verification tokens are invalidated and locked after 5 failed attempts to block automated brute-force attacks.
-- **SQL Injection Defense**: User profiles are updated using whitelisted columns to prevent field-injection exploits. All administrative queries are parameterized.
-- **XSS Protection**: All user data displayed dynamically on the frontend via `innerHTML` is routed through the `escapeHTML` sanitizer in `app.js`.
+## 4. Document Ingestion & OCR Processing Pipeline
+
+The ingestion pipeline checks document integrity at upload:
+
+1. **Multer Upload:** Files are uploaded to the backend and saved to `uploads/`.
+2. **Tier 1 (Gemini Vision OCR):** The backend queries the `gemini-2.0-flash` model with the base64-encoded image and a structured JSON output prompt:
+   ```json
+   {
+     "document_type": "aadhaar" | "pan" | "other",
+     "name": "Extracted Name",
+     "dob": "DD/MM/YYYY",
+     "id_number": "XXXX-XXXX-XXXX",
+     "is_legible": true | false
+   }
+   ```
+3. **Tier 2 (Tesseract.js Fallback):** If the API is offline, the server launches a local `tesseract.js` worker using English/Telugu language data, running regular expressions to parse identifiers:
+   - Aadhaar: `[0-9]{4}\s[0-9]{4}\s[0-9]{4}`
+   - PAN: `[A-Z]{5}[0-9]{4}[A-Z]{1}`
+
+---
+
+## 5. Fuzzy Verification & Readiness Scoring Algorithms
+
+To prevent rejections, fuzzy comparisons are run before submission:
+
+### Fuzzy Name-Matching
+The Levenshtein Distance ($d$) between normalized names is computed. The similarity percentage ($S$) is calculated as:
+$$S(A, B) = \left(1 - \frac{d(A, B)}{\max(\text{len}(A), \text{len}(B))}\right) \times 100$$
+Acceptance occurs at $S \ge 80\%$.
+
+### Readiness Score
+The pre-submission score ($R$) aggregates matching metrics:
+$$R = 0.40 \cdot S_{aadhaar} + 0.30 \cdot F_{docs} \cdot 100 + 0.30 \cdot \text{Validity}$$
+If $R < 80\%$, submission is blocked, and discrepancies are flagged to the citizen.
+
+---
+
+## 6. Officer Verification Portal Operations
+
+Designed for government administrators, this interface manages verification queues:
+- **Work Queue Dashboard:** Real-time table using professional outline SVGs.
+- **SSE Live Pipeline:** An active Server-Sent Events line (`/api/admin/applications/live`) pushes citizen submissions instantly to the dashboard.
+- **Bulk Verification:** Runs background evaluations, marking high-readiness files for bulk approval.
+- **Mandatory Rejection Reasons:** Requiring input notes when rejecting, maintaining transparency.
+
+---
+
+## 7. Backend API Endpoint Reference
+
+- **POST /api/auth/register:** Self-registration (hashes passwords; role: citizen).
+- **POST /api/auth/login:** Validates credentials and returns JWT.
+- **POST /api/otp/send:** Dispatches a 6-digit OTP code (implements rate-limiting).
+- **POST /api/otp/verify:** Verifies mobile OTP and issues a JWT token.
+- **POST /api/documents/upload:** Ingests document, runs Gemini OCR, and stores metadata.
+- **GET /api/admin/applications:** Lists submissions.
+- **PATCH /api/admin/applications/:id/status:** Updates status and posts notifications.
+
+---
+
+## 8. Relational Database Schema Design
+
+### Table: users
+```sql
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT UNIQUE,
+  password_hash TEXT,
+  role TEXT DEFAULT 'citizen',
+  mobile TEXT UNIQUE,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Table: citizen_profiles
+```sql
+CREATE TABLE citizen_profiles (
+  user_id INTEGER PRIMARY KEY REFERENCES users(id),
+  name TEXT DEFAULT '',
+  dob TEXT DEFAULT '',
+  gender TEXT DEFAULT '',
+  occupation TEXT DEFAULT '',
+  income_amount REAL DEFAULT 0,
+  state TEXT DEFAULT '',
+  district TEXT DEFAULT '',
+  caste TEXT DEFAULT '',
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Table: documents
+```sql
+CREATE TABLE documents (
+  id TEXT PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id),
+  document_type TEXT,
+  file_path TEXT,
+  extracted_name TEXT,
+  extracted_id_number TEXT,
+  is_verified INTEGER DEFAULT 0,
+  validation_status TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+## 9. System Security Architecture & Controls
+
+- **CORS Configuration:** Capped to allowed origins to block cross-origin requests.
+- **Payload Restrictions:** Maximum JSON parser limit set to `1mb` to prevent memory flooding.
+- **Privilege Separation:** Users registering self-default to `'citizen'`. Promotion to `'admin'` is only done through backend databases.
+- **SQL Injection Defense:** All queries parameterized using `$1`, `$2` binds.
+- **XSS Mitigation:** Frontend sanitizes strings via `escapeHTML` character encoding.
+
+---
+
+## 10. Deployment & Operations Guide
+
+### Local Installation
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Reset and seed database:
+   ```bash
+   node backend/update_seed_run.js
+   ```
+3. Run development backend:
+   ```bash
+   npm run dev
+   ```
+
+### Production Deployment
+Automatic rebuilds are configured for Vercel on pushes to the `main` branch. Ensure `DATABASE_URL` is set in Vercel settings to target production cloud storage.
