@@ -254,4 +254,119 @@ router.patch('/applications/:id/status', authenticateToken, requireAdmin, async 
   }
 });
 
+// 6. Clear all applications and documents (purge queue)
+router.delete('/applications/clear', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    // 1. Delete all applications
+    await db.query('DELETE FROM applications');
+    
+    // 2. Delete all documents
+    await db.query('DELETE FROM documents');
+
+    // 3. Clear all physical files from uploads directory (except .gitkeep)
+    const path = require('path');
+    const fs = require('fs');
+    let uploadsDir = path.resolve(__dirname, '../uploads');
+    
+    if (process.env.VERCEL) {
+      uploadsDir = path.join(require('os').tmpdir(), 'uploads');
+    }
+
+    if (fs.existsSync(uploadsDir)) {
+      const files = fs.readdirSync(uploadsDir);
+      for (const file of files) {
+        if (file !== '.gitkeep') {
+          try {
+            fs.unlinkSync(path.join(uploadsDir, file));
+          } catch (e) {
+            console.warn(`[Admin] Failed to delete file ${file}:`, e.message);
+          }
+        }
+      }
+    }
+
+    res.json({ message: 'All applications and uploaded files have been cleared successfully.' });
+  } catch (err) {
+    console.error('[Admin] Clear queue error:', err);
+    res.status(500).json({ error: 'Failed to clear applications and files' });
+  }
+});
+
+// 7. Delete an individual application and its associated files/documents
+router.delete('/applications/:id', authenticateToken, requireAdmin, async (req, res) => {
+  const appId = req.params.id;
+  try {
+    // Get application to find user_id
+    const appRes = await db.query('SELECT user_id, form_data FROM applications WHERE id = $1', [appId]);
+    if (appRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+    
+    const appRow = appRes.rows[0];
+    const userId = appRow.user_id;
+
+    // Retrieve citizen's uploaded documents (so we can delete files from uploads directory)
+    const docsRes = await db.query('SELECT file_path FROM documents WHERE user_id = $1', [userId]);
+
+    // Also look for uploaded files in the application's form_data
+    const formFiles = [];
+    try {
+      const formData = JSON.parse(appRow.form_data || '{}');
+      for (const key in formData) {
+        const val = formData[key];
+        if (typeof val === 'string' && (val.startsWith('uploads/') || val.includes('/uploads/'))) {
+          formFiles.push(val);
+        }
+      }
+    } catch (e) {}
+
+    // Delete documents from database
+    await db.query('DELETE FROM documents WHERE user_id = $1', [userId]);
+
+    // Delete application from database
+    await db.query('DELETE FROM applications WHERE id = $1', [appId]);
+
+    // Clean up physical files
+    const path = require('path');
+    const fs = require('fs');
+
+    const uniquePaths = new Set();
+    docsRes.rows.forEach(d => {
+      if (d.file_path) uniquePaths.add(d.file_path);
+    });
+    formFiles.forEach(f => {
+      uniquePaths.add(f);
+    });
+
+    for (let rawPath of uniquePaths) {
+      // Resolve path
+      let filePath;
+      if (rawPath.startsWith('uploads/')) {
+        filePath = path.resolve(__dirname, '..', rawPath);
+      } else if (rawPath.includes('uploads/')) {
+        const relativePart = rawPath.substring(rawPath.indexOf('uploads/'));
+        filePath = path.resolve(__dirname, '..', relativePart);
+      } else {
+        filePath = path.resolve(__dirname, '../uploads', path.basename(rawPath));
+      }
+
+      if (fs.existsSync(filePath) && path.basename(filePath) !== '.gitkeep') {
+        try {
+          fs.unlinkSync(filePath);
+          console.log(`[Admin] Deleted file: ${filePath}`);
+        } catch (e) {
+          console.warn(`[Admin] Failed to delete individual file ${filePath}:`, e.message);
+        }
+      }
+    }
+
+    res.json({ message: `Application ${appId} and associated documents were cleared successfully.` });
+  } catch (err) {
+    console.error('[Admin] Delete individual application error:', err);
+    res.status(500).json({ error: 'Failed to delete application and files' });
+  }
+});
+
 module.exports = router;
+
+

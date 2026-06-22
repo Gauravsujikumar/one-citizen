@@ -54,6 +54,7 @@
         rejectReason: $('#rejectReason'),
         approveBtn: $('#approveBtn'),
         rejectBtn: $('#rejectBtn'),
+        deleteAppBtn: $('#deleteAppBtn'),
 
         // Confirm
         confirmDialog: $('#confirmDialog'),
@@ -525,6 +526,28 @@
                 }, 1500);
             });
         }
+
+        const actionClearQueue = document.getElementById('actionClearQueue');
+        if (actionClearQueue) {
+            actionClearQueue.addEventListener('click', () => {
+                showConfirm(
+                    'reject',
+                    'Purge Verification Queue',
+                    'Are you sure you want to delete all applications, secure document vault records, and physical uploaded files? This action is permanent and cannot be undone.',
+                    async () => {
+                        try {
+                            showToast('Clearing queue and physical files...', 'success');
+                            const res = await api('DELETE', '/api/admin/applications/clear');
+                            showToast(res.message || 'Queue cleared successfully.', 'success');
+                            await loadApplications();
+                        } catch (err) {
+                            showToast(err.message || 'Failed to clear queue.', 'error');
+                        }
+                    },
+                    'Yes, Clear All'
+                );
+            });
+        }
     }
 
     if (document.readyState === 'loading') {
@@ -787,6 +810,18 @@
         els.detailOverlay.hidden = true;
         document.body.style.overflow = '';
         currentApplicationId = null;
+        rejectMode = false;
+        if (els.rejectReasonGroup) els.rejectReasonGroup.hidden = true;
+        if (els.rejectReason) {
+            els.rejectReason.value = '';
+            els.rejectReason.style.borderColor = '';
+        }
+        if (els.rejectBtn) {
+            els.rejectBtn.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                Reject Application
+            `;
+        }
     }
 
     // ── APPROVE ──
@@ -876,15 +911,47 @@
         els.rejectReason.style.borderColor = '';
     });
 
+    // ── DELETE APPLICATION (INDIVIDUAL CLEAR) ──
+    if (els.deleteAppBtn) {
+        els.deleteAppBtn.addEventListener('click', () => {
+            if (!currentApplicationId) return;
+            showConfirm(
+                'reject',
+                'Delete Application',
+                'Are you sure you want to delete this specific application along with all of this citizen\'s uploaded documents and physical files? This action is permanent and cannot be undone.',
+                async () => {
+                    try {
+                        els.approveBtn.disabled = true;
+                        els.rejectBtn.disabled = true;
+                        els.deleteAppBtn.disabled = true;
+
+                        showToast('Deleting application and files...', 'success');
+                        const res = await api('DELETE', `/api/admin/applications/${currentApplicationId}`);
+                        showToast(res.message || 'Application deleted successfully.', 'success');
+                        closeDetail();
+                        await loadApplications();
+                    } catch (err) {
+                        showToast(err.message || 'Failed to delete application.', 'error');
+                    } finally {
+                        els.approveBtn.disabled = false;
+                        els.rejectBtn.disabled = false;
+                        els.deleteAppBtn.disabled = false;
+                    }
+                },
+                'Yes, Delete'
+            );
+        });
+    }
+
     // ── CONFIRMATION DIALOG ──
-    function showConfirm(type, title, message, callback) {
+    function showConfirm(type, title, message, callback, okText = null) {
         els.confirmIcon.className = `confirm-icon ${type}-icon`;
         els.confirmIcon.textContent = type === 'approve' ? '✓' : '✕';
         els.confirmTitle.textContent = title;
         els.confirmMessage.textContent = message;
 
         els.confirmOk.className = `btn-confirm-ok ${type}-ok`;
-        els.confirmOk.textContent = type === 'approve' ? 'Yes, Approve' : 'Yes, Reject';
+        els.confirmOk.textContent = okText || (type === 'approve' ? 'Yes, Approve' : 'Yes, Reject');
 
         confirmCallback = callback;
         els.confirmDialog.hidden = false;
