@@ -41,8 +41,7 @@
         detailOverlay: $('#detailOverlay'),
         detailAppId: $('#detailAppId'),
         detailStatus: $('#detailStatus'),
-        detailScore: $('#detailScore'),
-        scoreArc: $('#scoreArc'),
+        detailEmoji: $('#detailEmoji'),
         detailBanner: $('#detailBanner'),
         citizenInfo: $('#citizenInfo'),
         formData: $('#formData'),
@@ -487,9 +486,9 @@
             actionApproveQuick.addEventListener('click', () => {
                 const highScores = applicationsList.filter(app => (app.readiness_score || 0) >= 80 && normalizeStatus(app.status) === 'pending');
                 if (highScores.length === 0) {
-                    showToast('No pending applications meet the automatic bulk verification score (>=80%).', 'error');
+                    showToast('No pending applications meet the automatic bulk verification criteria.', 'error');
                 } else {
-                    showToast(`Found ${highScores.length} pending applications with high readiness scores (>=80%). Please review them in the queue.`, 'success');
+                    showToast(`Found ${highScores.length} pending applications suitable for bulk verification. Please review them in the queue.`, 'success');
                     const searchBox = document.getElementById('queueSearch');
                     if (searchBox) {
                         searchBox.value = '';
@@ -566,11 +565,6 @@
         apps.forEach((app) => {
             const tr = document.createElement('tr');
             const status = normalizeStatus(app.status);
-            const score = app.readiness_score ?? app.readinessScore ?? app.score ?? 0;
-            const scoreNum = typeof score === 'number' ? score : parseInt(score) || 0;
-            const scorePercent = Math.min(scoreNum, 100);
-            const scoreColor = scorePercent >= 80 ? '#046A38' : scorePercent >= 50 ? '#f59e0b' : '#ef4444';
-
             const citizenName = (app.form_data && (app.form_data.applicant_name || app.form_data.name)) || 
                                 (app.formData && (app.formData.applicant_name || app.formData.name)) || 
                                 app.citizen_name || app.citizenName || app.name || 'N/A';
@@ -582,14 +576,6 @@
                 <td class="app-id-cell">${escapeHTML(String(appId))}</td>
                 <td class="citizen-name-cell">${escapeHTML(citizenName)}</td>
                 <td class="service-cell">${escapeHTML(service)}</td>
-                <td>
-                    <div class="score-cell">
-                        <div class="score-bar">
-                            <div class="score-bar-fill" style="width:${scorePercent}%;background:${scoreColor}"></div>
-                        </div>
-                        <span class="score-text" style="color:${scoreColor}">${scorePercent}%</span>
-                    </div>
-                </td>
                 <td><span class="status-badge status-${status}">${formatStatus(status)}</span></td>
                 <td class="date-cell">${date}</td>
                 <td>
@@ -655,23 +641,16 @@
         const status = normalizeStatus(app.status);
         setDetailStatus(status);
 
-        // Score
-        const score = app.readiness_score ?? app.readinessScore ?? app.score ?? 0;
-        const scoreNum = typeof score === 'number' ? score : parseInt(score) || 0;
-        els.detailScore.textContent = `${scoreNum}%`;
-
-        // Animate score arc
-        const circumference = 2 * Math.PI * 34; // r=34
-        const offset = circumference - (circumference * Math.min(scoreNum, 100)) / 100;
-        els.scoreArc.style.transition = 'stroke-dashoffset 0.8s ease';
-        requestAnimationFrame(() => {
-            els.scoreArc.setAttribute('stroke-dashoffset', offset);
-        });
-
-        // Score color
-        if (scoreNum >= 80) els.scoreArc.setAttribute('stroke', '#046A38');
-        else if (scoreNum >= 50) els.scoreArc.setAttribute('stroke', '#f59e0b');
-        else els.scoreArc.setAttribute('stroke', '#ef4444');
+        // Set Emoji
+        const emojiMap = {
+            pending: '⏳',
+            under_review: '🔍',
+            approved: '✅',
+            rejected: '❌'
+        };
+        if (els.detailEmoji) {
+            els.detailEmoji.textContent = emojiMap[status] || '⏳';
+        }
 
         // Citizen info
         const citizen = app.citizen || app.user || app;
@@ -814,9 +793,6 @@
         els.detailOverlay.hidden = true;
         document.body.style.overflow = '';
         currentApplicationId = null;
-        // Reset arc
-        els.scoreArc.style.transition = 'none';
-        els.scoreArc.setAttribute('stroke-dashoffset', 213.6);
     }
 
     // ── APPROVE ──

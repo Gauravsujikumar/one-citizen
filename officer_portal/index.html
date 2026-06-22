@@ -81,7 +81,7 @@
                         </div>
                         <div class="feature-text">
                             <strong>AI-Assisted Verification</strong>
-                            <span>Automated document reading & readiness scoring</span>
+                            <span>Automated document reading & verification checks</span>
                         </div>
                     </div>
                     <div class="feature-item">
@@ -318,27 +318,27 @@
                 <div class="menu-category">Applications</div>
                 <ul class="menu-list">
                     <li class="menu-item active" data-tab="all">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+                        <span class="menu-icon">📁</span>
                         <span>All Applications</span>
                         <span class="menu-badge badge-total" id="sidebarTotal">0</span>
                     </li>
                     <li class="menu-item" data-tab="pending">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span class="menu-icon">⏳</span>
                         <span>Pending Verification</span>
                         <span class="menu-badge badge-pending" id="sidebarPending">0</span>
                     </li>
                     <li class="menu-item" data-tab="under_review">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <span class="menu-icon">🔍</span>
                         <span>Under Review</span>
                         <span class="menu-badge badge-review" id="sidebarReview">0</span>
                     </li>
                     <li class="menu-item" data-tab="approved">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        <span class="menu-icon">✅</span>
                         <span>Approved</span>
                         <span class="menu-badge badge-approved" id="sidebarApproved">0</span>
                     </li>
                     <li class="menu-item" data-tab="rejected">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        <span class="menu-icon">❌</span>
                         <span>Rejected</span>
                         <span class="menu-badge badge-rejected" id="sidebarRejected">0</span>
                     </li>
@@ -347,27 +347,27 @@
                 <div class="menu-category">Services</div>
                 <ul class="menu-list">
                     <li class="menu-item service-filter-item active" data-service="all">
-                        <span class="service-dot dot-all"></span>
+                        <span class="service-icon">🛠️</span>
                         <span>All Services</span>
                     </li>
                     <li class="menu-item service-filter-item" data-service="income">
-                        <span class="service-dot dot-income"></span>
+                        <span class="service-icon">💵</span>
                         <span>Income Certificate</span>
                     </li>
                     <li class="menu-item service-filter-item" data-service="caste">
-                        <span class="service-dot dot-caste"></span>
+                        <span class="service-icon">📜</span>
                         <span>Caste Certificate</span>
                     </li>
                     <li class="menu-item service-filter-item" data-service="ews">
-                        <span class="service-dot dot-ews"></span>
+                        <span class="service-icon">🌾</span>
                         <span>EWS Certificate</span>
                     </li>
                     <li class="menu-item service-filter-item" data-service="birth">
-                        <span class="service-dot dot-birth"></span>
+                        <span class="service-icon">👶</span>
                         <span>Birth Certificate</span>
                     </li>
                     <li class="menu-item service-filter-item" data-service="death">
-                        <span class="service-dot dot-death"></span>
+                        <span class="service-icon">🪦</span>
                         <span>Death Certificate</span>
                     </li>
                 </ul>
@@ -375,11 +375,11 @@
                 <div class="menu-category">Reports & Analytics</div>
                 <ul class="menu-list">
                     <li class="menu-item">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        <span class="menu-icon">📊</span>
                         <span>Verification Reports</span>
                     </li>
                     <li class="menu-item">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="menu-icon"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                        <span class="menu-icon">📈</span>
                         <span>Performance Matrix</span>
                     </li>
                 </ul>
@@ -495,7 +495,7 @@
                         <button class="action-btn" id="actionApproveQuick">
                             <span class="action-btn-icon">✅</span>
                             <span class="action-btn-title">Bulk Approve</span>
-                            <span class="action-btn-desc">Approve high readiness scores</span>
+                            <span class="action-btn-desc">Approve clear pending files</span>
                         </button>
                         <button class="action-btn" id="actionCitizenSearch">
                             <span class="action-btn-icon">🔍</span>
@@ -549,7 +549,6 @@
                                         <th>Application ID</th>
                                         <th>Citizen Name</th>
                                         <th>Service Type</th>
-                                        <th>Readiness Score</th>
                                         <th>Status</th>
                                         <th>Date Submitted</th>
                                         <th>Action</th>
@@ -760,15 +759,9 @@
                         <span class="status-badge" id="detailStatus">—</span>
                     </div>
                     <div class="banner-score">
-                        <span class="banner-label">Readiness Score</span>
-                        <div class="score-ring-container">
-                            <svg class="score-ring" viewBox="0 0 80 80">
-                                <circle cx="40" cy="40" r="34" stroke="#e5e7eb" stroke-width="6" fill="none"/>
-                                <circle id="scoreArc" cx="40" cy="40" r="34" stroke="#046A38" stroke-width="6" fill="none"
-                                    stroke-dasharray="213.6 213.6" stroke-dashoffset="213.6" stroke-linecap="round"
-                                    transform="rotate(-90 40 40)"/>
-                            </svg>
-                            <span class="score-value" id="detailScore">—</span>
+                        <span class="banner-label">Verification Status</span>
+                        <div class="banner-emoji-box">
+                            <span id="detailEmoji" class="detail-status-emoji">⏳</span>
                         </div>
                     </div>
                 </div>
