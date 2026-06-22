@@ -53,7 +53,7 @@ async function runSeed() {
 
     await db.query(
       `INSERT INTO applications (id, user_id, service_id, form_data, readiness_score, status, created_at)
-       VALUES ('app_caste', $1, 2, '{"service_name":"Caste Certificate"}', 90, 'pending', '2026-05-08 14:30:00')`,
+       VALUES ('app_caste', $1, 2, '{"service_name":"Caste Certificate","father_caste_proof":"uploads/mock_caste_proof.pdf"}', 90, 'pending', '2026-05-08 14:30:00')`,
       [userId]
     );
 
